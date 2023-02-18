@@ -1,2 +1,3 @@
 rootProject.name = 'digital'
+include 'core'
 
