@@ -1,3 +1,5 @@
 rootProject.name = 'digital'
 include 'core'
+include 'processor'
+include 'digital-tests'
 
