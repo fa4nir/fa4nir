@@ -2,23 +2,17 @@ buildscript {
     repositories {
         mavenCentral()
     }
-
-    dependencies {
-        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
-    }
 }
 
 plugins {
     id 'java'
     id 'java-library'
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 sourceCompatibility = '11'
 targetCompatibility = '11'
 
 allprojects {
-    apply plugin: 'java'
     apply plugin: 'java-library'
 
     group = 'com.github'
@@ -49,8 +43,10 @@ subprojects {
 
 }
 
-shadowJar {
+tasks.register('fatJar', Jar) {
     archiveFileName.set("${rootProject.name}-${rootProject.version}.jar")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 
 dependencies {
