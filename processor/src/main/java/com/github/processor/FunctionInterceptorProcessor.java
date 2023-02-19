@@ -11,6 +11,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
+import java.util.Objects;
 import java.util.Set;
 
 @SupportedAnnotationTypes(value = "com.github.core.annotations.FunctionInterceptor")
@@ -34,10 +35,12 @@ public class FunctionInterceptorProcessor extends AbstractProcessor {
         for (Element element : elements) {
             PackageElement packageElement = this.processingEnv.getElementUtils().getPackageOf(element);
             TypeSpec typeSpec = this.functionInterceptorFactory.newSpec(element);
-            JavaFileWriterUtils.write(this.processingEnv,
-                    String.format("%s.impl", packageElement.getQualifiedName()),
-                    typeSpec
-            );
+            if (Objects.nonNull(typeSpec)) {
+                JavaFileWriterUtils.write(this.processingEnv,
+                        String.format("%s.impl", packageElement.getQualifiedName()),
+                        typeSpec
+                );
+            }
         }
         return false;
     }
