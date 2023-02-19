@@ -1,4 +1,4 @@
-rootProject.name = 'digital'
+rootProject.name = 'draupnir'
 include 'core'
 include 'processor'
 include 'digital-tests'
