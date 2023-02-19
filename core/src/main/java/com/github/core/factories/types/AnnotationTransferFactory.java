@@ -1,4 +1,4 @@
-package com.github.core.factories;
+package com.github.core.factories.types;
 
 import com.squareup.javapoet.TypeSpec;
 
@@ -7,6 +7,6 @@ import java.util.Set;
 
 public interface AnnotationTransferFactory {
 
-    TypeSpec newSpec(Element element);
+    TypeSpec newTypeSpec(Element element);
 
 }

@@ -1,8 +1,8 @@
 package com.github.processor;
 
 import com.github.core.annotations.FunctionInterceptor;
-import com.github.core.factories.AnnotationTransferFactory;
-import com.github.core.factories.FunctionInterceptorFactory;
+import com.github.core.factories.types.AnnotationTransferFactory;
+import com.github.core.factories.types.FunctionInterceptorFactory;
 import com.github.processor.utils.JavaFileWriterUtils;
 import com.squareup.javapoet.TypeSpec;
 
@@ -31,15 +31,17 @@ public class FunctionInterceptorProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(FunctionInterceptor.class);
-        for (Element element : elements) {
-            PackageElement packageElement = this.processingEnv.getElementUtils().getPackageOf(element);
-            TypeSpec typeSpec = this.functionInterceptorFactory.newSpec(element);
-            if (Objects.nonNull(typeSpec)) {
-                JavaFileWriterUtils.write(this.processingEnv,
-                        String.format("%s.impl", packageElement.getQualifiedName()),
-                        typeSpec
-                );
+        if (!roundEnv.processingOver()) {
+            Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(FunctionInterceptor.class);
+            for (Element element : elements) {
+                PackageElement packageElement = this.processingEnv.getElementUtils().getPackageOf(element);
+                TypeSpec typeSpec = this.functionInterceptorFactory.newTypeSpec(element);
+                if (Objects.nonNull(typeSpec)) {
+                    JavaFileWriterUtils.write(this.processingEnv,
+                            String.format("%s.impl", packageElement.getQualifiedName()),
+                            typeSpec
+                    );
+                }
             }
         }
         return false;
