@@ -1,5 +1,13 @@
 rootProject.name = 'draupnir'
-include 'core'
-include 'processor'
-include 'digital-tests'
 
+include('core', 'processor', 'digital-tests')
+
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("libs") {
+            library("apache_commons_lang3", "org.apache.commons:commons-lang3:3.12.0")
+            library("javapoet", "com.squareup:javapoet:1.13.0")
+        }
+    }
+}
