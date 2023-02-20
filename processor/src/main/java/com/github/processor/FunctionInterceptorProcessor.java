@@ -35,7 +35,7 @@ public class FunctionInterceptorProcessor extends AbstractProcessor {
             Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(FunctionInterceptor.class);
             for (Element element : elements) {
                 PackageElement packageElement = this.processingEnv.getElementUtils().getPackageOf(element);
-                TypeSpec typeSpec = this.functionInterceptorFactory.newTypeSpec(element);
+                TypeSpec typeSpec = this.functionInterceptorFactory.newTypeSpec(element, processingEnv);
                 if (Objects.nonNull(typeSpec)) {
                     JavaFileWriterUtils.write(this.processingEnv,
                             String.format("%s.impl", packageElement.getQualifiedName()),
@@ -47,4 +47,8 @@ public class FunctionInterceptorProcessor extends AbstractProcessor {
         return false;
     }
 
+    @Override
+    public Set<String> getSupportedOptions() {
+        return super.getSupportedOptions();
+    }
 }
