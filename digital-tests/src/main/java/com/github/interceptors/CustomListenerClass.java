@@ -1,9 +1,6 @@
 package com.github.interceptors;
 
-import com.github.core.annotations.FallBackMethod;
-import com.github.core.annotations.FunctionInterceptor;
-import com.github.core.annotations.GetParameter;
-import com.github.core.annotations.InterceptMapper;
+import com.github.core.annotations.*;
 import com.google.common.util.concurrent.FutureCallback;
 
 @FunctionInterceptor(
@@ -17,13 +14,23 @@ import com.google.common.util.concurrent.FutureCallback;
 )
 public class CustomListenerClass {
 
-    public void customListener(@GetParameter(num = 0) Object payload) {
+    @DelegateResultTo(
+            methods = @DelegateToMethod(
+                    methodName = "delegatorAcceptor"
+            )
+    )
+    public String customListener(@GetParameter(num = 0) Object payload) {
         System.out.println(payload);
+        return (String) payload;
     }
 
     @FallBackMethod
     public void fallBackForCustomListener(Exception e) {
         System.out.println(e.getMessage());
+    }
+
+    public void delegatorAcceptor(String payload) {
+        System.out.println("Delegate to " + payload);
     }
 
 }

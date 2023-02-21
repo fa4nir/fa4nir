@@ -1,17 +1,19 @@
 package com.github.core.factories.methods;
 
+import com.github.core.annotations.DelegateResultTo;
+import com.github.core.annotations.DelegateToMethod;
 import com.github.core.annotations.GetParameter;
 import com.github.core.annotations.InterceptMapper;
 import com.github.core.utils.OverridingMethodMetaInfo;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.*;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -25,6 +27,8 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
                 .filter(interceptor -> method.getSimpleName().toString().equals(interceptor.listenerMethodName()))
                 .findFirst().orElse(null);
         if (Objects.nonNull(target)) {
+            MethodSpec.Builder builder = MethodSpec.overriding(method);
+            builder.beginControlFlow("try");
             ExecutableElement elementMethod = ((ExecutableElement) methodMetaInfo
                     .getCurrentTypeElementMethods()
                     .get(target.toCurrentMethod()));
@@ -37,15 +41,28 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
                     .map(targetParameters::get)
                     .map(VariableElement::getSimpleName)
                     .collect(Collectors.joining(","));
+
+            DelegateResultTo delegateResultToAnnotations = elementMethod.getAnnotation(DelegateResultTo.class);
+            if (Objects.nonNull(delegateResultToAnnotations)) {
+                TypeMirror returnType = elementMethod.getReturnType();
+                TypeName parameterizedReturnType = ParameterizedTypeName.get(returnType);
+                DelegateToMethod[] delegateToMethodAnnotations = delegateResultToAnnotations.methods();
+                builder.addStatement("$T result = this.$N.$N($N)", parameterizedReturnType, currentClassFieldName, target.toCurrentMethod(), parametersAsString);
+                Arrays.stream(delegateToMethodAnnotations)
+                        .forEach(delegateToMethod -> {
+                           builder.addStatement("this.$N.$N(result)", currentClassFieldName, delegateToMethod.methodName());
+                        });
+            } else {
+                builder.addStatement("this.$N.$N($N)", currentClassFieldName, target.toCurrentMethod(), parametersAsString);
+            }
+
             CodeBlock fallBackMethodAsString = CodeBlock.builder().build();
             if (Objects.nonNull(fallBackMethod)) {
                 fallBackMethodAsString = CodeBlock.builder()
                         .addStatement("this.$N.$N(e)", currentClassFieldName, fallBackMethod.getSimpleName())
                         .build();
             }
-            return MethodSpec.overriding(method)
-                    .beginControlFlow("try")
-                    .addStatement("this.$N.$N($N)", currentClassFieldName, target.toCurrentMethod(), parametersAsString)
+            return builder
                     .nextControlFlow("catch($T e)", ClassName.get(Exception.class))
                     .addCode(fallBackMethodAsString)
                     .endControlFlow()
