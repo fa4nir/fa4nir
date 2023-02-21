@@ -39,8 +39,6 @@ public class FunctionInterceptorFactory implements AnnotationTransferFactory {
         String currentClassFieldName = Introspector.decapitalize(currentClassForField);
         TypeElement currentTypeElement = processingEnv.getElementUtils().
                 getTypeElement(currentClassType.toString());
-        Map<String, ? extends Element> currentTypeElementMethods = currentTypeElement.getEnclosedElements()
-                .stream().collect(Collectors.toMap(k -> k.getSimpleName().toString(), Function.identity()));
         Element fallBackMethod = currentTypeElement.getEnclosedElements().stream()
                 .filter(method -> Objects.nonNull(method.getAnnotation(FallBackMethod.class)))
                 .findFirst().orElse(null);
@@ -58,7 +56,7 @@ public class FunctionInterceptorFactory implements AnnotationTransferFactory {
                         OverridingMethodMetaInfo.builder()
                                 .method(method)
                                 .methods(methods)
-                                .currentTypeElementMethods(currentTypeElementMethods)
+                                .currentTypeElementMethods(currentTypeElement.getEnclosedElements())
                                 .fallBackMethod(fallBackMethod)
                                 .currentClassFieldName(currentClassFieldName)
                                 .build()

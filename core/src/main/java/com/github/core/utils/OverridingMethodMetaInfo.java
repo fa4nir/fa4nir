@@ -4,6 +4,7 @@ import com.github.core.annotations.InterceptMapper;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import java.util.List;
 import java.util.Map;
 
 public class OverridingMethodMetaInfo {
@@ -12,7 +13,7 @@ public class OverridingMethodMetaInfo {
 
     private final InterceptMapper[] methods;
 
-    private final Map<String, ? extends Element> currentTypeElementMethods;
+    private final List<? extends Element> currentTypeElementMethods;
 
     private final Element fallBackMethod;
 
@@ -35,7 +36,7 @@ public class OverridingMethodMetaInfo {
 
         private InterceptMapper[] methods;
 
-        private Map<String, ? extends Element> currentTypeElementMethods;
+        private List<? extends Element> currentTypeElementMethods;
 
         private Element fallBackMethod;
 
@@ -51,7 +52,7 @@ public class OverridingMethodMetaInfo {
             return this;
         }
 
-        public Builder currentTypeElementMethods(Map<String, ? extends Element> currentTypeElementMethods) {
+        public Builder currentTypeElementMethods(List<? extends Element> currentTypeElementMethods) {
             this.currentTypeElementMethods = currentTypeElementMethods;
             return this;
         }
@@ -80,7 +81,7 @@ public class OverridingMethodMetaInfo {
         return methods;
     }
 
-    public Map<String, ? extends Element> getCurrentTypeElementMethods() {
+    public List<? extends Element> getCurrentTypeElementMethods() {
         return currentTypeElementMethods;
     }
 

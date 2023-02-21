@@ -3,10 +3,10 @@ package com.github.interceptors;
 import com.github.core.annotations.*;
 import com.google.common.util.concurrent.FutureCallback;
 
-import java.net.ConnectException;
+import java.util.List;
 
 @FunctionInterceptor(
-        listenerType = FutureCallback.class,
+        listenerType = CustomListenerType.class,
         methods = {
                 @InterceptMapper(
                         listenerMethodName = "onSuccess",
@@ -14,7 +14,7 @@ import java.net.ConnectException;
                 )
         }
 )
-public class CustomListenerClass {
+public class CustomListenerClass2 {
 
     @DelegateResultTo(
             methods = {
@@ -29,22 +29,23 @@ public class CustomListenerClass {
                     )
             }
     )
-    public String customListener(@GetParameter(num = 0) Object payload) {
+    public Person customListener(@GetParameter(num = 2) List<String> payload) {
         System.out.println(payload);
-        return "Suppa pupa dupa";
+        return new Person();
     }
 
-    public void delegatorAcceptor(@ActualResult String payload,
-                                  @GetParameter(num = 0) Object param0) {
-        System.out.println("Delegate to " + payload + " parameter " + param0);
+    public void delegatorAcceptor(@ActualResult Person payload,
+                                  @GetParameter(num = 1) Integer number,
+                                  @GetParameter(num = 2) List<String> param0) {
+        System.out.println("Delegate to " + payload + " Num " + number + " parameter " + param0);
     }
 
-    public void delegatorAcceptor(@ActualResult String payload) {
+    public void delegatorAcceptor(@ActualResult Person payload) {
         System.out.println("Delegate to " + payload);
     }
 
-    public void supperDelegatorAcceptor(@GetParameter(num = 0) Object param0,
-                                        @ActualResult String payload) {
+    public void supperDelegatorAcceptor(@GetParameter(num = 2) List<String> param0,
+                                        @GetParameter(num = 0) String payload) {
         System.out.println(param0 + " Delegate to " + payload);
     }
 

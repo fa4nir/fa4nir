@@ -1,9 +1,6 @@
 package com.github.core.factories.methods;
 
-import com.github.core.annotations.DelegateResultTo;
-import com.github.core.annotations.DelegateToMethod;
-import com.github.core.annotations.GetParameter;
-import com.github.core.annotations.InterceptMapper;
+import com.github.core.annotations.*;
 import com.github.core.utils.OverridingMethodMetaInfo;
 import com.squareup.javapoet.*;
 
@@ -11,10 +8,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class OverridingMethodsFactory implements InterceptMethodFactory {
@@ -30,8 +24,9 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
             MethodSpec.Builder builder = MethodSpec.overriding(method);
             builder.beginControlFlow("try");
             ExecutableElement elementMethod = ((ExecutableElement) methodMetaInfo
-                    .getCurrentTypeElementMethods()
-                    .get(target.toCurrentMethod()));
+                    .getCurrentTypeElementMethods().stream()
+                    .filter(e -> e.getSimpleName().toString().equals(target.toCurrentMethod()))
+                    .findFirst().orElse(null));
             List<? extends VariableElement> targetParameters = method.getParameters();
             List<? extends VariableElement> parameters = elementMethod.getParameters();
             String parametersAsString = parameters.stream()
@@ -49,13 +44,30 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
                 DelegateToMethod[] delegateToMethodAnnotations = delegateResultToAnnotations.methods();
                 builder.addStatement("$T result = this.$N.$N($N)", parameterizedReturnType, currentClassFieldName, target.toCurrentMethod(), parametersAsString);
                 Arrays.stream(delegateToMethodAnnotations)
+                        .collect(Collectors.toCollection(LinkedHashSet::new))
                         .forEach(delegateToMethod -> {
-                           builder.addStatement("this.$N.$N(result)", currentClassFieldName, delegateToMethod.methodName());
+                            String methodName = delegateToMethod.methodName();
+                            List<String> delegateParametersLst = methodMetaInfo.getCurrentTypeElementMethods().stream()
+                                    .map(delegator -> ((ExecutableElement) delegator))
+                                    .filter(delegator -> delegator.getSimpleName().toString().equals(methodName))
+                                    .map(delegator -> delegator.getParameters().stream().map(parameter -> {
+                                        ActualResult actualResult = parameter.getAnnotation(ActualResult.class);
+                                        GetParameter getParameter = parameter.getAnnotation(GetParameter.class);
+                                        if (Objects.nonNull(actualResult)) {
+                                            return "result";
+                                        } else if (Objects.nonNull(getParameter)) {
+                                            return targetParameters.get(getParameter.num()).getSimpleName().toString();
+                                        }
+                                        return "";
+                                    }).collect(Collectors.joining(",")))
+                                    .collect(Collectors.toList());
+                            delegateParametersLst.forEach(delegatorParametersAsString -> {
+                                builder.addStatement("this.$N.$N($N)", currentClassFieldName, methodName, delegatorParametersAsString);
+                            });
                         });
             } else {
                 builder.addStatement("this.$N.$N($N)", currentClassFieldName, target.toCurrentMethod(), parametersAsString);
             }
-
             CodeBlock fallBackMethodAsString = CodeBlock.builder().build();
             if (Objects.nonNull(fallBackMethod)) {
                 fallBackMethodAsString = CodeBlock.builder()
@@ -70,4 +82,5 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
         }
         return MethodSpec.overriding(method).build();
     }
+
 }
