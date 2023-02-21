@@ -3,6 +3,7 @@ package com.github.core.factories.methods;
 import com.github.core.annotations.*;
 import com.github.core.utils.OverridingMethodMetaInfo;
 import com.squareup.javapoet.*;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -12,6 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class OverridingMethodsFactory implements InterceptMethodFactory {
+
     @Override
     public MethodSpec newMethodSpec(OverridingMethodMetaInfo methodMetaInfo) {
         ExecutableElement method = methodMetaInfo.getMethod();
@@ -42,7 +44,10 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
                 TypeMirror returnType = elementMethod.getReturnType();
                 TypeName parameterizedReturnType = ParameterizedTypeName.get(returnType);
                 DelegateToMethod[] delegateToMethodAnnotations = delegateResultToAnnotations.methods();
-                builder.addStatement("$T result = this.$N.$N($N)", parameterizedReturnType, currentClassFieldName, target.toCurrentMethod(), parametersAsString);
+                builder.addStatement("$T result = this.$N.$N($N)",
+                        parameterizedReturnType, currentClassFieldName,
+                        target.toCurrentMethod(), parametersAsString
+                );
                 Arrays.stream(delegateToMethodAnnotations)
                         .collect(Collectors.toCollection(LinkedHashSet::new))
                         .forEach(delegateToMethod -> {
@@ -70,9 +75,23 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
             }
             CodeBlock fallBackMethodAsString = CodeBlock.builder().build();
             if (Objects.nonNull(fallBackMethod)) {
-                fallBackMethodAsString = CodeBlock.builder()
-                        .addStatement("this.$N.$N(e)", currentClassFieldName, fallBackMethod.getSimpleName())
-                        .build();
+                ExecutableElement fallBackExecutableMethod = ((ExecutableElement) fallBackMethod);
+                List<? extends VariableElement> fallBackParameters = fallBackExecutableMethod.getParameters();
+                String fallBackVariableElementsAsString = fallBackParameters.stream()
+                        .map(fallBackParameter -> fallBackParameter.getAnnotation(GetParameter.class))
+                        .filter(Objects::nonNull)
+                        .map(annotation -> targetParameters.get(annotation.num()))
+                        .map(VariableElement::getSimpleName)
+                        .collect(Collectors.joining(","));
+                if (StringUtils.isNoneBlank(fallBackVariableElementsAsString)) {
+                    fallBackMethodAsString = CodeBlock.builder()
+                            .addStatement("this.$N.$N(e, $N)", currentClassFieldName, fallBackMethod.getSimpleName(), fallBackVariableElementsAsString)
+                            .build();
+                } else {
+                    fallBackMethodAsString = CodeBlock.builder()
+                            .addStatement("this.$N.$N(e)", currentClassFieldName, fallBackMethod.getSimpleName())
+                            .build();
+                }
             }
             return builder
                     .nextControlFlow("catch($T e)", ClassName.get(Exception.class))

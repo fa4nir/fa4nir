@@ -1,7 +1,6 @@
 package com.github.interceptors;
 
 import com.github.core.annotations.*;
-import com.google.common.util.concurrent.FutureCallback;
 
 import java.util.List;
 
@@ -29,7 +28,7 @@ public class CustomListenerClass2 {
                     )
             }
     )
-    public Person customListener(@GetParameter(num = 2) List<String> payload) {
+    public Person customListener(@GetParameter(num = 0) String name, @GetParameter(num = 2) List<String> payload) {
         System.out.println(payload);
         return new Person();
     }
@@ -50,7 +49,7 @@ public class CustomListenerClass2 {
     }
 
     @FallBackMethod
-    public void fallBackForCustomListener(Exception e) {
+    public void fallBackForCustomListener(Exception e, @GetParameter(num = 2) List<String> payload) {
         System.out.println(e.getMessage());
     }
 
