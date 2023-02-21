@@ -5,14 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.TYPE, ElementType.PACKAGE})
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface FunctionInterceptor {
-
-    String beanName() default "";
-
-    Class<?> listenerType();
-
-    InterceptMapper[] methods();
-
+public @interface FallBackMethod {
 }

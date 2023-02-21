@@ -2,6 +2,8 @@ dependencies {
     implementation project(":core")
     implementation project(":processor")
     annotationProcessor project(":processor")
+    testImplementation project(":processor")
+    testAnnotationProcessor project(":processor")
     implementation libs.apache.commons.lang3
     implementation 'com.google.guava:guava:31.1-jre'
 }

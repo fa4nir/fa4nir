@@ -1,11 +1,12 @@
 package com.github.interceptors;
 
-import org.apache.commons.lang3.StringUtils;
+import com.github.interceptors.impl.FutureCallbackImpl;
 
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("1");
+        FutureCallbackImpl<String> t = new FutureCallbackImpl<String>(new CustomListenerClass());
+        t.onSuccess("Hurma murma");
     }
 
 }
