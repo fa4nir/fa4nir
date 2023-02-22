@@ -3,8 +3,6 @@ package com.github.interceptors;
 import com.github.core.annotations.*;
 import com.google.common.util.concurrent.FutureCallback;
 
-import java.net.ConnectException;
-
 @FunctionInterceptor(
         listenerType = FutureCallback.class,
         methods = {
@@ -48,7 +46,7 @@ public class CustomListenerClass {
         System.out.println(param0 + " Delegate to " + payload);
     }
 
-    @FallBackMethod
+    @FallBackMethod(insideOfMethod = "onSuccess")
     public void fallBackForCustomListener(Exception e) {
         System.out.println(e.getMessage());
     }

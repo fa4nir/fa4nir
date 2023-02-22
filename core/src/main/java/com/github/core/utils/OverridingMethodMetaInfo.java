@@ -13,11 +13,11 @@ public class OverridingMethodMetaInfo {
 
     private final InterceptMapper[] methods;
 
-    private final List<? extends Element> currentTypeElementMethods;
+    private final List<? extends Element> sourceTypeElementMethods;
 
-    private final Element fallBackMethod;
+    private final Map<String, ? extends Element> fallBackMethods;
 
-    private final String currentClassFieldName;
+    private final String sourceClassFieldName;
 
     public static Builder builder() {
         return new Builder();
@@ -26,9 +26,29 @@ public class OverridingMethodMetaInfo {
     private OverridingMethodMetaInfo(Builder b) {
         this.method = b.method;
         this.methods = b.methods;
-        this.currentTypeElementMethods = b.currentTypeElementMethods;
-        this.fallBackMethod = b.fallBackMethod;
-        this.currentClassFieldName = b.currentClassFieldName;
+        this.sourceTypeElementMethods = b.sourceTypeElementMethods;
+        this.fallBackMethods = b.fallBackMethods;
+        this.sourceClassFieldName = b.sourceClassFieldName;
+    }
+
+    public List<? extends Element> getSourceTypeElementMethods() {
+        return sourceTypeElementMethods;
+    }
+
+    public ExecutableElement getMethod() {
+        return method;
+    }
+
+    public InterceptMapper[] getMethods() {
+        return methods;
+    }
+
+    public Map<String, ? extends Element> getFallBackMethods() {
+        return fallBackMethods;
+    }
+
+    public String getSourceClassFieldName() {
+        return sourceClassFieldName;
     }
 
     public static class Builder {
@@ -36,11 +56,11 @@ public class OverridingMethodMetaInfo {
 
         private InterceptMapper[] methods;
 
-        private List<? extends Element> currentTypeElementMethods;
+        private List<? extends Element> sourceTypeElementMethods;
 
-        private Element fallBackMethod;
+        private Map<String, ? extends Element> fallBackMethods;
 
-        private String currentClassFieldName;
+        private String sourceClassFieldName;
 
         public Builder method(ExecutableElement method) {
             this.method = method;
@@ -52,18 +72,18 @@ public class OverridingMethodMetaInfo {
             return this;
         }
 
-        public Builder currentTypeElementMethods(List<? extends Element> currentTypeElementMethods) {
-            this.currentTypeElementMethods = currentTypeElementMethods;
+        public Builder currentTypeElementMethods(List<? extends Element> sourceTypeElementMethods) {
+            this.sourceTypeElementMethods = sourceTypeElementMethods;
             return this;
         }
 
-        public Builder fallBackMethod(Element fallBackMethod) {
-            this.fallBackMethod = fallBackMethod;
+        public Builder fallBackMethods(Map<String, ? extends Element> fallBackMethods) {
+            this.fallBackMethods = fallBackMethods;
             return this;
         }
 
-        public Builder currentClassFieldName(String currentClassFieldName) {
-            this.currentClassFieldName = currentClassFieldName;
+        public Builder sourceClassFieldName(String sourceClassFieldName) {
+            this.sourceClassFieldName = sourceClassFieldName;
             return this;
         }
 
@@ -71,25 +91,5 @@ public class OverridingMethodMetaInfo {
             return new OverridingMethodMetaInfo(this);
         }
 
-    }
-
-    public ExecutableElement getMethod() {
-        return method;
-    }
-
-    public InterceptMapper[] getMethods() {
-        return methods;
-    }
-
-    public List<? extends Element> getCurrentTypeElementMethods() {
-        return currentTypeElementMethods;
-    }
-
-    public Element getFallBackMethod() {
-        return fallBackMethod;
-    }
-
-    public String getCurrentClassFieldName() {
-        return currentClassFieldName;
     }
 }

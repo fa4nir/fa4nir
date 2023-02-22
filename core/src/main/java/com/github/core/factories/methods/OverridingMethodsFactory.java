@@ -19,21 +19,24 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
 
     @Override
     public MethodSpec newMethodSpec(OverridingMethodMetaInfo methodMetaInfo) {
-        ExecutableElement method = methodMetaInfo.getMethod();
-        Element fallBackMethod = methodMetaInfo.getFallBackMethod();
-        String currentClassFieldName = methodMetaInfo.getCurrentClassFieldName();
-        InterceptMapper target = Arrays.stream(methodMetaInfo.getMethods())
-                .filter(interceptor -> method.getSimpleName().toString().equals(interceptor.listenerMethodName()))
+        ExecutableElement target = methodMetaInfo.getMethod();
+        Map<String, ? extends Element> allFallBackMethod = methodMetaInfo.getFallBackMethods();
+        Element fallBackMethod = allFallBackMethod.get(target.getSimpleName().toString());
+        String currentClassFieldName = methodMetaInfo.getSourceClassFieldName();
+        InterceptMapper source = Arrays.stream(methodMetaInfo.getMethods())
+                .filter(interceptor -> target.getSimpleName().toString().equals(interceptor.listenerMethodName()))
                 .findFirst().orElse(null);
-        if (Objects.nonNull(target)) {
-            MethodSpec.Builder builder = MethodSpec.overriding(method);
+        if (Objects.nonNull(source)) {
+            String requiredErrorMessage = String.format("Can't find method %s", source.toCurrentMethod());
+            MethodSpec.Builder builder = MethodSpec.overriding(target);
             builder.beginControlFlow("try");
             ExecutableElement elementMethod = ((ExecutableElement) methodMetaInfo
-                    .getCurrentTypeElementMethods().stream()
-                    .filter(e -> e.getSimpleName().toString().equals(target.toCurrentMethod()))
+                    .getSourceTypeElementMethods().stream()
+                    .filter(e -> e.getSimpleName().toString().equals(source.toCurrentMethod()))
                     .findFirst().orElse(null));
-            List<? extends VariableElement> targetParameters = method.getParameters();
-            List<? extends VariableElement> parameters = elementMethod.getParameters();
+            List<? extends VariableElement> targetParameters = target.getParameters();
+            List<? extends VariableElement> parameters = Objects.requireNonNull(elementMethod, requiredErrorMessage)
+                    .getParameters();
             String parametersAsString = parametersAsString(targetParameters, parameters);
             DelegateResultTo delegateResultToAnnotations = elementMethod.getAnnotation(DelegateResultTo.class);
             if (Objects.nonNull(delegateResultToAnnotations)) {
@@ -42,7 +45,7 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
                 DelegateToMethod[] delegateToMethodAnnotations = delegateResultToAnnotations.methods();
                 builder.addStatement("$T result = this.$N.$N($N)",
                         parameterizedReturnType, currentClassFieldName,
-                        target.toCurrentMethod(), parametersAsString
+                        source.toCurrentMethod(), parametersAsString
                 );
                 List<CodeBlock> delegateMethods = generateCallToDelegateMethods(
                         methodMetaInfo, currentClassFieldName,
@@ -50,7 +53,7 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
                 );
                 delegateMethods.forEach(builder::addStatement);
             } else {
-                builder.addStatement("this.$N.$N($N)", currentClassFieldName, target.toCurrentMethod(), parametersAsString);
+                builder.addStatement("this.$N.$N($N)", currentClassFieldName, source.toCurrentMethod(), parametersAsString);
             }
             CodeBlock fallBackMethodAsString = this.fallBackMethodFactory
                     .newFallBackCodeBlock(fallBackMethod, currentClassFieldName, targetParameters);
@@ -60,11 +63,12 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
                     .endControlFlow()
                     .build();
         }
-        return MethodSpec.overriding(method).build();
+        return MethodSpec.overriding(target).build();
     }
 
     private List<CodeBlock> generateCallToDelegateMethods(OverridingMethodMetaInfo methodMetaInfo, String currentClassFieldName,
-                                                          List<? extends VariableElement> targetParameters, DelegateToMethod[] delegateToMethodAnnotations) {
+                                                          List<? extends VariableElement> targetParameters,
+                                                          DelegateToMethod[] delegateToMethodAnnotations) {
         return Arrays.stream(delegateToMethodAnnotations)
                 .collect(Collectors.toCollection(LinkedHashSet::new)).stream()
                 .flatMap(delegateToMethod -> {
@@ -85,7 +89,7 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
     }
 
     private List<String> collectDelegateParameters(OverridingMethodMetaInfo methodMetaInfo, List<? extends VariableElement> targetParameters, String methodName) {
-        return methodMetaInfo.getCurrentTypeElementMethods().stream()
+        return methodMetaInfo.getSourceTypeElementMethods().stream()
                 .map(delegator -> ((ExecutableElement) delegator))
                 .filter(delegator -> delegator.getSimpleName().toString().equals(methodName))
                 .map(delegator -> delegator.getParameters().stream().map(parameter -> retrieveLink(targetParameters, parameter))
