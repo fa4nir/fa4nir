@@ -17,7 +17,7 @@ import java.util.Set;
 
 @SupportedAnnotationTypes(value = "com.github.core.annotations.Transmitter")
 @SupportedSourceVersion(value = SourceVersion.RELEASE_11)
-public class FunctionInterceptorProcessor extends AbstractProcessor {
+public class TransmitterProcessor extends AbstractProcessor {
 
     private ProcessingEnvironment processingEnv;
 

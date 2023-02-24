@@ -1,13 +1,11 @@
 package com.github.core.factories.types;
 
-import com.github.core.annotations.FallBackMethod;
 import com.github.core.annotations.Receiver;
 import com.github.core.annotations.Transmitter;
 import com.github.core.factories.methods.InterceptMethodFactory;
 import com.github.core.factories.methods.OverridingMethodsFactory;
 import com.github.core.utils.TypeSpecConstructorsUtils;
 import com.squareup.javapoet.*;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -80,14 +78,6 @@ public class TransmitterFactory implements AnnotationTransferFactory {
                     .collect(Collectors.toList());
         }
         return Map.entry(supperInterface, methods);
-    }
-
-    private String fetchInsideOfMethod(Element key) {
-        String insideOfMethod = key.getAnnotation(FallBackMethod.class).name();
-        if (StringUtils.isNoneBlank(insideOfMethod)) {
-            return insideOfMethod;
-        }
-        throw new RuntimeException("FallBackMethod annotation should contains listener method name.");
     }
 
 }
