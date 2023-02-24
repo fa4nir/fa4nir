@@ -7,12 +7,12 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE, ElementType.PACKAGE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface FunctionInterceptor {
+public @interface Transmitter {
 
-    String beanName() default "";
+    String beanName();
 
-    Class<?> listenerType();
+    String receiverName();
 
-    InterceptMapper[] methods();
+    boolean isSupper() default true;
 
 }

@@ -1,12 +1,16 @@
 package com.github.interceptors;
 
-import com.github.interceptors.impl.FutureCallbackImpl;
+//import com.github.interceptors.impl.FutureCallbackImpl;
+
+import com.github.interceptors.impl.CustomListenerCase2Impl;
+
+import java.util.ArrayList;
 
 public class Main {
 
     public static void main(String[] args) {
-        FutureCallbackImpl<String> t = new FutureCallbackImpl<String>(new CustomListenerClass());
-        t.onSuccess("Hurma murma");
+        CustomListenerCase2Impl c = new CustomListenerCase2Impl(new CustomListenerClass2());
+        c.onSuccess("param1", 2030, new ArrayList<>());
     }
 
 }

@@ -3,68 +3,48 @@ package com.github.interceptors;
 import com.github.core.annotations.*;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-@FunctionInterceptor(
-        beanName = "MySupperPuperImpl",
-        listenerType = CustomListenerType.class,
-        methods = {
-                @InterceptMapper(
-                        listenerMethodName = "onSuccess",
-                        toCurrentMethod = "customListener"
-                ),
-                @InterceptMapper(
-                        listenerMethodName = "onSuccess1",
-                        toCurrentMethod = "customListener1"
-                )
-        }
-)
+@Receiver(name = "custom-listener-case-2")
 public class CustomListenerClass2 {
 
-    @DelegateResultTo(
-            methods = {
-                    @DelegateToMethod(
-                            methodName = "delegatorAcceptor"
-                    ),
-                    @DelegateToMethod(
-                            methodName = "delegatorAcceptor"
-                    ),
-                    @DelegateToMethod(
-                            methodName = "supperDelegatorAcceptor"
-                    )
-            }
-    )
-    public Person customListener(@GetParameter(num = 0) String name, @GetParameter(num = 2) List<String> payload) {
-        System.out.println(payload);
-        return new Person();
+    private static final Logger log = Logger.getLogger(CustomListenerClass2.class.getName());
+
+    @DelegateResultTo(method = "delegatorAcceptor")
+    public Person customListener(@FetchParam(num = 0) String name, @FetchParam(num = 2) List<String> payload) {
+        log.log(Level.INFO, "Enter: {0}, {1}", new Object[]{name, payload});
+        return new Person(1L, "Mit9i", "mit9i@gmail.com");
     }
 
-    public void customListener1(@GetParameter(num = 0) String name, @GetParameter(num = 1) Double payload) {
-        System.out.println(payload);
+    public void delegatorAcceptor(@FetchResult Person person,
+                                  @FetchParam(num = 0) String name,
+                                  @FetchParam(num = 1) Integer payload) {
+        log.log(Level.INFO, "Message {0}, {1}, {2}", new Object[]{person, name, payload});
     }
 
-    public void delegatorAcceptor(@ActualResult Person payload,
-                                  @GetParameter(num = 1) Integer number,
-                                  @GetParameter(num = 2) List<String> param0) {
-        System.out.println("Delegate to " + payload + " Num " + number + " parameter " + param0);
+    public void fallBackForCustomListener(@ErrorSignal Exception e, @FetchParam(num = 1) Integer number) {
+        log.log(Level.WARNING, "Message: {0}, {1}", new Object[]{e.getMessage(), number});
     }
 
-    public void delegatorAcceptor(@ActualResult Person payload) {
-        System.out.println("Delegate to " + payload);
-    }
+    @Transmitter(beanName = "CustomListenerCase2", receiverName = "custom-listener-case-2", isSupper = false)
+    public interface TransmitterCase2Template extends Custom3 {
+        @Override
+        @NotifyTo(name = "customListener")
+        @FallBackMethod(name = "fallBackForCustomListener")
+        void onSuccess(String parameter0, Integer parameter1, List<String> parameters2);
 
-    public void supperDelegatorAcceptor(@GetParameter(num = 2) List<String> param0,
-                                        @GetParameter(num = 0) String payload) {
-        System.out.println(param0 + " Delegate to " + payload);
-    }
+        @Override
+        default void onFailure(Throwable t) {
+        }
 
-    @FallBackMethod(insideOfMethod = "onSuccess")
-    public void fallBackForCustomListener(Exception e, @GetParameter(num = 2) List<String> payload) {
-        System.out.println(e.getMessage());
-    }
+        @Override
+        default void onSuccess(String r) {
+        }
 
-    @FallBackMethod(insideOfMethod = "onSuccess1")
-    public void fallBackForCustomListener1(Exception e, @GetParameter(num = 1) double payload) {
-        System.out.println(e.getMessage());
+        @Override
+        default void onSuccess1(String parameter0, Double parameters2) {
+        }
     }
 
 }

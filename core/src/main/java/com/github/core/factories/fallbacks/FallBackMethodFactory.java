@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface FallBackMethodFactory {
 
-    CodeBlock newFallBackCodeBlock(Element fallBackMethod, String currentClassFieldName, List<? extends VariableElement> targetParameters);
+    CodeBlock newFallBackCodeBlock(Element fallBackMethod, String currentClassFieldName, List<? extends VariableElement> sourceParameters);
 
 }

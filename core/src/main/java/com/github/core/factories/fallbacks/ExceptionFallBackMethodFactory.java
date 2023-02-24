@@ -1,6 +1,7 @@
 package com.github.core.factories.fallbacks;
 
-import com.github.core.annotations.GetParameter;
+import com.github.core.annotations.ErrorSignal;
+import com.github.core.annotations.FetchParam;
 import com.squareup.javapoet.CodeBlock;
 import org.apache.commons.lang3.StringUtils;
 
@@ -14,27 +15,39 @@ import java.util.stream.Collectors;
 public class ExceptionFallBackMethodFactory implements FallBackMethodFactory {
 
     @Override
-    public CodeBlock newFallBackCodeBlock(Element fallBackMethod, String currentClassFieldName, List<? extends VariableElement> targetParameters) {
-        CodeBlock fallBackMethodAsString = CodeBlock.builder().build();
+    public CodeBlock newFallBackCodeBlock(Element fallBackMethod, String currentClassFieldName, List<? extends VariableElement> sourceParameters) {
+        CodeBlock fallBackMethodCodeBlock = CodeBlock.builder().build();
         if (Objects.nonNull(fallBackMethod)) {
             ExecutableElement fallBackExecutableMethod = ((ExecutableElement) fallBackMethod);
             List<? extends VariableElement> fallBackParameters = fallBackExecutableMethod.getParameters();
             String fallBackVariableElementsAsString = fallBackParameters.stream()
-                    .map(fallBackParameter -> fallBackParameter.getAnnotation(GetParameter.class))
+                    .map(fallBackParameter -> getParameterName(sourceParameters, fallBackParameter))
                     .filter(Objects::nonNull)
-                    .map(annotation -> targetParameters.get(annotation.num()))
-                    .map(VariableElement::getSimpleName)
                     .collect(Collectors.joining(","));
             if (StringUtils.isNoneBlank(fallBackVariableElementsAsString)) {
-                fallBackMethodAsString = CodeBlock.builder()
-                        .addStatement("this.$N.$N(e, $N)", currentClassFieldName, fallBackMethod.getSimpleName(), fallBackVariableElementsAsString)
+                fallBackMethodCodeBlock = CodeBlock.builder()
+                        .addStatement("this.$N.$N($N)", currentClassFieldName,
+                                fallBackMethod.getSimpleName(), fallBackVariableElementsAsString)
                         .build();
             } else {
-                fallBackMethodAsString = CodeBlock.builder()
+                fallBackMethodCodeBlock = CodeBlock.builder()
                         .addStatement("this.$N.$N(e)", currentClassFieldName, fallBackMethod.getSimpleName())
                         .build();
             }
         }
-        return fallBackMethodAsString;
+        return fallBackMethodCodeBlock;
+    }
+
+    private String getParameterName(List<? extends VariableElement> targetParameters, VariableElement fallBackParameter) {
+        ErrorSignal errorSignal = fallBackParameter.getAnnotation(ErrorSignal.class);
+        FetchParam fetchParam = fallBackParameter.getAnnotation(FetchParam.class);
+        if (Objects.nonNull(errorSignal)) {
+            return "e";
+        } else if (Objects.nonNull(fetchParam)) {
+            VariableElement targetParameterName = targetParameters.get(fetchParam.num());
+            return targetParameterName.getSimpleName().toString();
+        } else {
+            return null;
+        }
     }
 }

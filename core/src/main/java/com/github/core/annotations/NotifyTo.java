@@ -7,10 +7,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface InterceptMapper {
-
-    String listenerMethodName();
-
-    String toCurrentMethod();
-
+public @interface NotifyTo {
+    String name();
 }
