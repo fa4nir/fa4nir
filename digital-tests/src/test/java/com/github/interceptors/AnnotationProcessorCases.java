@@ -53,4 +53,23 @@ class AnnotationProcessorCases {
                 .generatesSources(output);
     }
 
+    @Test
+    void givenInputAnnotationClass_whenRunProcessor_thenReceivedOutputFile_2() throws URISyntaxException, IOException {
+        String inputFileName = "input/input-stab-2.java";
+        String outputFileName = "output/output-stab-2.java";
+        JavaFileObject input = JavaFileObjects.forSourceString(
+                "com.github.interceptors.CaseCustomListenerSpec", loadJavaFileAsString(inputFileName)
+        );
+        JavaFileObject output = JavaFileObjects.forSourceString(
+                "com.github.interceptors.impl.TransmitterTemplateBeanCaseZeroImpl", loadJavaFileAsString(outputFileName)
+        );
+        Truth.assert_()
+                .about(JavaSourcesSubjectFactory.javaSources())
+                .that(List.of(input))
+                .processedWith(new TransmitterProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesSources(output);
+    }
+
 }
