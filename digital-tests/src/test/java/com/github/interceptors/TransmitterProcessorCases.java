@@ -110,4 +110,27 @@ class TransmitterProcessorCases {
                 .generatesSources(output);
     }
 
+    @Test
+    void givenInputAnnotationClass_whenRunProcessor_thenReceivedOutputFile_5() throws URISyntaxException, IOException {
+        String inputInterfaceFileName = "input/input-stub-5-1.java";
+        String inputFileName = "input/input-stub-5-2.java";
+        String outputFileName = "output/output-stub-4.java";
+        JavaFileObject input = JavaFileObjects.forSourceString(
+                "com.github.interceptors.CaseCustomListenerSpec", loadJavaFileAsString(inputFileName)
+        );
+        JavaFileObject inputInterface = JavaFileObjects.forSourceString(
+                "com.github.interceptors.TransmitterTemplate", loadJavaFileAsString(inputInterfaceFileName)
+        );
+        JavaFileObject output = JavaFileObjects.forSourceString(
+                "com.github.interceptors.impl.TransmitterTemplateBeanCaseZeroImpl", loadJavaFileAsString(outputFileName)
+        );
+        Truth.assert_()
+                .about(JavaSourcesSubjectFactory.javaSources())
+                .that(List.of(inputInterface, input))
+                .processedWith(new TransmitterProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesSources(output);
+    }
+
 }
