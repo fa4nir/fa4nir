@@ -17,8 +17,8 @@ class AnnotationProcessorCases {
 
     @Test
     void givenInputAnnotationClass_whenRunProcessor_thenReceivedOutputFile_0() throws URISyntaxException, IOException {
-        String inputFileName = "input/input-stab-0.java";
-        String outputFileName = "output/output-stab-0.java";
+        String inputFileName = "input/input-stub-0.java";
+        String outputFileName = "output/output-stub-0.java";
         JavaFileObject input = JavaFileObjects.forSourceString(
                 "com.github.interceptors.CaseCustomListenerSpec", loadJavaFileAsString(inputFileName)
         );
@@ -36,8 +36,8 @@ class AnnotationProcessorCases {
 
     @Test
     void givenInputAnnotationClass_whenRunProcessor_thenReceivedOutputFile_1() throws URISyntaxException, IOException {
-        String inputFileName = "input/input-stab-1.java";
-        String outputFileName = "output/output-stab-1.java";
+        String inputFileName = "input/input-stub-1.java";
+        String outputFileName = "output/output-stub-1.java";
         JavaFileObject input = JavaFileObjects.forSourceString(
                 "com.github.interceptors.CaseCustomListenerSpec", loadJavaFileAsString(inputFileName)
         );
@@ -55,8 +55,8 @@ class AnnotationProcessorCases {
 
     @Test
     void givenInputAnnotationClass_whenRunProcessor_thenReceivedOutputFile_2() throws URISyntaxException, IOException {
-        String inputFileName = "input/input-stab-2.java";
-        String outputFileName = "output/output-stab-2.java";
+        String inputFileName = "input/input-stub-2.java";
+        String outputFileName = "output/output-stub-2.java";
         JavaFileObject input = JavaFileObjects.forSourceString(
                 "com.github.interceptors.CaseCustomListenerSpec", loadJavaFileAsString(inputFileName)
         );
@@ -74,8 +74,8 @@ class AnnotationProcessorCases {
 
     @Test
     void givenInputAnnotationClass_whenRunProcessor_thenReceivedOutputFile_3() throws URISyntaxException, IOException {
-        String inputFileName = "input/input-stab-3.java";
-        String outputFileName = "output/output-stab-3.java";
+        String inputFileName = "input/input-stub-3.java";
+        String outputFileName = "output/output-stub-3.java";
         JavaFileObject input = JavaFileObjects.forSourceString(
                 "com.github.interceptors.CaseCustomListenerSpec", loadJavaFileAsString(inputFileName)
         );
