@@ -7,23 +7,22 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import java.beans.Introspector;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OverridingMethodsFactory implements InterceptMethodFactory {
 
     private final FallBackMethodFactory fallBackMethodFactory = new ExceptionFallBackMethodFactory();
-
-    public static int randomInt(int min, int max) {
-        Random rand = new Random();
-        return rand.nextInt((max - min) + 1) + min;
-    }
 
     @Override
     public MethodSpec newMethodSpec(ExecutableElement sourceMethod, Element target) {
@@ -31,11 +30,11 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
         FallBackMethod annotationFallBackMethod = sourceMethod.getAnnotation(FallBackMethod.class);
         if (Objects.nonNull(annotationNotifyTo)) {
             List<? extends VariableElement> sourceParameters = sourceMethod.getParameters();
-            String resultName = createResultName(sourceParameters);
             String targetFieldName = Introspector.decapitalize(target.getSimpleName().toString());
             String notifyToTarget = annotationNotifyTo.name();
             String fallBackMethodName = annotationFallBackMethod.name();
             ExecutableElement targetMethod = findMethod(target, notifyToTarget);
+            String resultName = createResultName(sourceParameters, targetMethod);
             DelegateResultTo[] delegateResultToAnnotations = targetMethod.getAnnotationsByType(DelegateResultTo.class);
             ExecutableElement fallBackMethod = findMethod(target, fallBackMethodName);
             TypeMirror targetMethodReturnType = targetMethod.getReturnType();
@@ -65,12 +64,11 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
         return MethodSpec.overriding(sourceMethod).build();
     }
 
-    private String createResultName(List<? extends VariableElement> sourceParameters) {
+    private String createResultName(List<? extends VariableElement> sourceParameters, ExecutableElement targetMethod) {
         String resultName = "result";
         boolean isResultMatch = sourceParameters.stream().anyMatch(param -> param.getSimpleName().toString().equals("result"));
         if (isResultMatch) {
-            int add = randomInt(5, 50);
-            resultName = resultName + add;
+            resultName = String.format("%sFrom%s", resultName, StringUtils.capitalize(targetMethod.getSimpleName().toString()));
         }
         return resultName;
     }
