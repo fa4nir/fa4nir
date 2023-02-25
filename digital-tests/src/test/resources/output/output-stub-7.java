@@ -1,7 +1,6 @@
 package com.github.interceptors.impl;
 
 import com.github.interceptors.CaseCustomListenerSpec;
-import com.github.interceptors.TransmitterTemplate;
 import java.lang.Exception;
 import java.lang.Override;
 import java.lang.String;
