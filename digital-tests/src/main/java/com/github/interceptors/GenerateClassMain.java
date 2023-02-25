@@ -6,7 +6,7 @@ import com.github.interceptors.impl.CustomListenerCase2Impl;
 
 import java.util.ArrayList;
 
-public class Main {
+public class GenerateClassMain {
 
     public static void main(String[] args) {
         CustomListenerCase2Impl c = new CustomListenerCase2Impl(new CustomListenerClass2());
