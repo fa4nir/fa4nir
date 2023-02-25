@@ -1,4 +1,4 @@
-package com.github.interceptors.utils;
+package io.github.fa4nir.utils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

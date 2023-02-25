@@ -15,7 +15,7 @@ targetCompatibility = JavaVersion.VERSION_11
 allprojects {
     apply plugin: 'java-library'
 
-    group = 'com.github'
+    group = 'io.github.fa4nir'
     version = '1.0.0'
 
     repositories {
@@ -44,7 +44,7 @@ subprojects {
 
 }
 
-project(':digital-tests') {
+project(':fa4nir-tests') {
     configurations.all {
         exclude group: "com.squareup", module: "javapoet:1.13.0"
     }

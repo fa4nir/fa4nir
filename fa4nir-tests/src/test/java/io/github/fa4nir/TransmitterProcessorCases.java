@@ -1,4 +1,4 @@
-package com.github.interceptors;
+package io.github.fa4nir;
 
 import com.github.processor.TransmitterProcessor;
 import com.google.common.truth.Truth;
@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import static com.github.interceptors.utils.TestFileUtils.loadJavaFileAsString;
+import static io.github.fa4nir.utils.TestFileUtils.loadJavaFileAsString;
 
 class TransmitterProcessorCases {
 

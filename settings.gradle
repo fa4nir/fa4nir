@@ -1,6 +1,6 @@
-rootProject.name = 'draupnir'
+rootProject.name = 'fa4nir'
 
-include('core', 'processor', 'digital-tests')
+include('core', 'processor', 'examples')
 
 
 dependencyResolutionManagement {
@@ -11,5 +11,5 @@ dependencyResolutionManagement {
         }
     }
 }
-include 'examples'
+include 'fa4nir-tests'
 
