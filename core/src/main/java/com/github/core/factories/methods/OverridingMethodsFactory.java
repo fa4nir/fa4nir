@@ -1,7 +1,6 @@
 package com.github.core.factories.methods;
 
 import com.github.core.annotations.*;
-import com.github.core.factories.fallbacks.ExceptionFallBackMethodFactory;
 import com.github.core.factories.fallbacks.FallBackMethodFactory;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -22,7 +21,11 @@ import java.util.stream.Collectors;
 
 public class OverridingMethodsFactory implements InterceptMethodFactory {
 
-    private final FallBackMethodFactory fallBackMethodFactory = new ExceptionFallBackMethodFactory();
+    private final FallBackMethodFactory fallBackMethodFactory;
+
+    public OverridingMethodsFactory(FallBackMethodFactory fallBackMethodFactory) {
+        this.fallBackMethodFactory = fallBackMethodFactory;
+    }
 
     @Override
     public MethodSpec newMethodSpec(ExecutableElement sourceMethod, Element target) {

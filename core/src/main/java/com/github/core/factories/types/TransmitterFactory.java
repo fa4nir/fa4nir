@@ -3,7 +3,6 @@ package com.github.core.factories.types;
 import com.github.core.annotations.Receiver;
 import com.github.core.annotations.Transmitter;
 import com.github.core.factories.methods.InterceptMethodFactory;
-import com.github.core.factories.methods.OverridingMethodsFactory;
 import com.github.core.utils.TypeSpecConstructorsUtils;
 import com.squareup.javapoet.*;
 
@@ -22,7 +21,11 @@ import java.util.stream.Collectors;
 
 public class TransmitterFactory implements AnnotationTransferFactory {
 
-    private final InterceptMethodFactory overridingInterceptor = new OverridingMethodsFactory();
+    private final InterceptMethodFactory overridingInterceptor;
+
+    public TransmitterFactory(InterceptMethodFactory overridingInterceptor) {
+        this.overridingInterceptor = overridingInterceptor;
+    }
 
     @Override
     public TypeSpec newTypeSpec(Element element, ProcessingEnvironment processingEnv, Set<? extends Element> receivers) {

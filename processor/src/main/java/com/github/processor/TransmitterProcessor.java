@@ -2,8 +2,8 @@ package com.github.processor;
 
 import com.github.core.annotations.Receiver;
 import com.github.core.annotations.Transmitter;
+import com.github.core.factories.TransmitterContainerFactory;
 import com.github.core.factories.types.AnnotationTransferFactory;
-import com.github.core.factories.types.TransmitterFactory;
 import com.github.processor.utils.JavaFileWriterUtils;
 import com.squareup.javapoet.TypeSpec;
 
@@ -27,7 +27,7 @@ public class TransmitterProcessor extends AbstractProcessor {
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         this.processingEnv = processingEnv;
-        this.functionInterceptorFactory = new TransmitterFactory();
+        this.functionInterceptorFactory = TransmitterContainerFactory.transmitterFactory();
     }
 
     @Override
