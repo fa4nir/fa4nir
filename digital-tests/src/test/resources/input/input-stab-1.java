@@ -7,12 +7,11 @@ import com.google.common.util.concurrent.FutureCallback;
 public class CaseCustomListenerSpec {
 
     public void customListener(@FetchParam(num = 0) String payload) {
-        System.out.println(payload);
-        return "Suppa pupa dupa";
+
     }
 
     public void fallBackForCustomListener(@ErrorSignal Exception e) {
-        System.out.println(e.getMessage());
+
     }
 
     @Transmitter(

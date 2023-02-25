@@ -16,9 +16,28 @@ import static com.github.interceptors.utils.TestFileUtils.loadJavaFileAsString;
 class AnnotationProcessorCases {
 
     @Test
-    void givenInputAnnotationClass_whenRunProcessor_thenReceivedOutputFile() throws URISyntaxException, IOException {
+    void givenInputAnnotationClass_whenRunProcessor_thenReceivedOutputFile_0() throws URISyntaxException, IOException {
         String inputFileName = "input/input-stab-0.java";
         String outputFileName = "output/output-stab-0.java";
+        JavaFileObject input = JavaFileObjects.forSourceString(
+                "com.github.interceptors.CaseCustomListenerSpec", loadJavaFileAsString(inputFileName)
+        );
+        JavaFileObject output = JavaFileObjects.forSourceString(
+                "com.github.interceptors.impl.TransmitterTemplateBeanCaseZeroImpl", loadJavaFileAsString(outputFileName)
+        );
+        Truth.assert_()
+                .about(JavaSourcesSubjectFactory.javaSources())
+                .that(List.of(input))
+                .processedWith(new TransmitterProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesSources(output);
+    }
+
+    @Test
+    void givenInputAnnotationClass_whenRunProcessor_thenReceivedOutputFile_1() throws URISyntaxException, IOException {
+        String inputFileName = "input/input-stab-1.java";
+        String outputFileName = "output/output-stab-1.java";
         JavaFileObject input = JavaFileObjects.forSourceString(
                 "com.github.interceptors.CaseCustomListenerSpec", loadJavaFileAsString(inputFileName)
         );
