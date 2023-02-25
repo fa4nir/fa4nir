@@ -1,6 +1,6 @@
 package com.github.interceptors.impl;
 
-import com.github.interceptors.CaseCustomListenerSpecOne;
+import com.github.interceptors.CaseCustomListenerSpec;
 import com.google.common.util.concurrent.FutureCallback;
 import java.lang.Exception;
 import java.lang.Override;
@@ -8,19 +8,17 @@ import java.lang.String;
 import java.lang.Throwable;
 
 public class TransmitterTemplateBeanCaseZeroImpl implements FutureCallback<String> {
-    private final CaseCustomListenerSpecOne caseCustomListenerSpecOne;
+    private final CaseCustomListenerSpec caseCustomListenerSpec;
 
-    public TransmitterTemplateBeanCaseZeroImpl(CaseCustomListenerSpecOne caseCustomListenerSpecOne) {
-        this.caseCustomListenerSpecOne = caseCustomListenerSpecOne;
+    public TransmitterTemplateBeanCaseZeroImpl(CaseCustomListenerSpec caseCustomListenerSpec) {
+        this.caseCustomListenerSpec = caseCustomListenerSpec;
     }
 
     @Override
     public void onSuccess(String result) {
         try {
-            String resultFromCustomListener = this.caseCustomListenerSpecOne.customListener(result);
-            this.caseCustomListenerSpecOne.delegatorAcceptor(resultFromCustomListener);
+            this.caseCustomListenerSpec.customListener(result);
         } catch (Exception e) {
-            this.caseCustomListenerSpecOne.fallBackForCustomListener(e);
         }
     }
 

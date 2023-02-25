@@ -8,6 +8,11 @@ public class CaseCustomListenerSpec {
 
     public void customListener(@FetchParam(num = 0) String payload) {
         System.out.println(payload);
+        return "Suppa pupa dupa";
+    }
+
+    public void fallBackForCustomListener(@ErrorSignal Exception e) {
+        System.out.println(e.getMessage());
     }
 
     @Transmitter(
@@ -17,6 +22,7 @@ public class CaseCustomListenerSpec {
     public interface TransmitterTemplate extends FutureCallback<String> {
         @Override
         @NotifyTo(name = "customListener")
+        @FallBackMethod(name = "fallBackForCustomListener")
         void onSuccess(String result);
 
         @Override

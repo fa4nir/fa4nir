@@ -32,7 +32,7 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
             List<? extends VariableElement> sourceParameters = sourceMethod.getParameters();
             String targetFieldName = Introspector.decapitalize(target.getSimpleName().toString());
             String notifyToTarget = annotationNotifyTo.name();
-            String fallBackMethodName = annotationFallBackMethod.name();
+            String fallBackMethodName = Objects.nonNull(annotationFallBackMethod) ? annotationFallBackMethod.name() : "";
             ExecutableElement targetMethod = findMethod(target, notifyToTarget);
             String resultName = createResultName(sourceParameters, targetMethod);
             DelegateResultTo[] delegateResultToAnnotations = targetMethod.getAnnotationsByType(DelegateResultTo.class);
@@ -43,7 +43,7 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
             MethodSpec.Builder builder = MethodSpec.overriding(sourceMethod);
             builder.beginControlFlow("try");
             String parametersAsString = parametersAsString(sourceParameters, targetParameters);
-            if (Objects.nonNull(delegateResultToAnnotations)) {
+            if (Objects.nonNull(delegateResultToAnnotations) && delegateResultToAnnotations.length > 0) {
                 builder.addStatement("$T $N = this.$N.$N($N)", ParameterizedTypeName.get(targetMethodReturnType), resultName,
                         targetFieldName, targetMethod.getSimpleName().toString(), parametersAsString);
                 List<CodeBlock> callsToDelegateMethods = generateCallToDelegateMethods(resultName, target.getEnclosedElements(), targetFieldName,

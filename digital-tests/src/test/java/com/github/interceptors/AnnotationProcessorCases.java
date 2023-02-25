@@ -20,7 +20,7 @@ class AnnotationProcessorCases {
         String inputFileName = "input/input-stab-0.java";
         String outputFileName = "output/output-stab-0.java";
         JavaFileObject input = JavaFileObjects.forSourceString(
-                "com.github.interceptors.CaseCustomListenerSpecOne", loadJavaFileAsString(inputFileName)
+                "com.github.interceptors.CaseCustomListenerSpec", loadJavaFileAsString(inputFileName)
         );
         JavaFileObject output = JavaFileObjects.forSourceString(
                 "com.github.interceptors.impl.TransmitterTemplateBeanCaseZeroImpl", loadJavaFileAsString(outputFileName)
