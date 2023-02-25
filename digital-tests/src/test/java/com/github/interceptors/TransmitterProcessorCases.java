@@ -13,7 +13,7 @@ import java.util.List;
 
 import static com.github.interceptors.utils.TestFileUtils.loadJavaFileAsString;
 
-class AnnotationProcessorCases {
+class TransmitterProcessorCases {
 
     @Test
     void givenInputAnnotationClass_whenRunProcessor_thenReceivedOutputFile_0() throws URISyntaxException, IOException {
