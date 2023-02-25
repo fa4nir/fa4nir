@@ -1,6 +1,6 @@
 package com.github.examples;
 
-public class Main {
+public class GenerateClassesMain {
 
     public static void main(String[] args) {
 
