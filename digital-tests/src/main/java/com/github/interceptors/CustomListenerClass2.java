@@ -32,7 +32,9 @@ public class CustomListenerClass2 {
         @Override
         @NotifyTo(name = "customListener")
         @FallBackMethod(name = "fallBackForCustomListener")
-        void onSuccess(String parameter0, Integer parameter1, List<String> parameters2);
+        void onSuccess(String parameter0,
+                       Integer parameter1,
+                       List<String> parameters2);
 
         @Override
         default void onFailure(Throwable t) {
