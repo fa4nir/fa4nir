@@ -1,9 +1,9 @@
 package io.github.fa4nir;
 
-import com.github.processor.TransmitterProcessor;
 import com.google.common.truth.Truth;
 import com.google.testing.compile.JavaFileObjects;
 import com.google.testing.compile.JavaSourcesSubjectFactory;
+import io.github.fa4nir.processor.TransmitterProcessor;
 import org.junit.jupiter.api.Test;
 
 import javax.tools.JavaFileObject;

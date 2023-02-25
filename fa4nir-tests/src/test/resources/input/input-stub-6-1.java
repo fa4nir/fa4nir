@@ -1,7 +1,9 @@
 package com.github.interceptors;
 
-import com.github.core.annotations.*;
 import com.google.common.util.concurrent.FutureCallback;
+import io.github.fa4nir.core.annotations.FallBackMethod;
+import io.github.fa4nir.core.annotations.NotifyTo;
+import io.github.fa4nir.core.annotations.Transmitter;
 
 @Transmitter(
         beanName = "TransmitterTemplateBeanCaseZero",

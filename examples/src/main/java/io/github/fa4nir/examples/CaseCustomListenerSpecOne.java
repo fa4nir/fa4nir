@@ -1,38 +1,39 @@
-package com.github.interceptors;
+package io.github.fa4nir.examples;
 
 import com.google.common.util.concurrent.FutureCallback;
 import io.github.fa4nir.core.annotations.*;
 
-@Receiver(name = "ReceiverCustomListenerId")
-public class CaseCustomListenerSpec {
+@Receiver(name = "customListenerClass")
+public class CaseCustomListenerSpecOne {
 
     @DelegateResultTo(method = "delegatorAcceptor")
     @DelegateResultTo(method = "supperDelegatorAcceptor")
     public String customListener(@FetchParam(num = 0) String payload) {
-        return "test-string";
-    }
-
-    public void delegatorAcceptor(@FetchResult String payload) {
-
+        System.out.println(payload);
+        return "Suppa pupa dupa";
     }
 
     public void delegatorAcceptor(@FetchResult String payload,
                                   @FetchParam(num = 0) Object param0) {
+        System.out.println("Delegate to " + payload + " parameter " + param0);
+    }
 
+    public void delegatorAcceptor(@FetchResult String payload) {
+        System.out.println("Delegate to " + payload);
     }
 
     public void supperDelegatorAcceptor(@FetchParam(num = 0) Object param0,
                                         @FetchResult String payload) {
-
+        System.out.println(param0 + " Delegate to " + payload);
     }
 
     public void fallBackForCustomListener(@ErrorSignal Exception e) {
-
+        System.out.println(e.getMessage());
     }
 
     @Transmitter(
-            beanName = "TransmitterTemplateBeanCaseZero",
-            receiverName = "ReceiverCustomListenerId"
+            beanName = "MyCustomBean",
+            receiverName = "customListenerClass"
     )
     public interface TransmitterTemplate extends FutureCallback<String> {
         @Override

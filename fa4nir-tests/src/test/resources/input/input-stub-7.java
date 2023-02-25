@@ -1,7 +1,7 @@
 package com.github.interceptors;
 
-import com.github.core.annotations.*;
 import com.google.common.util.concurrent.FutureCallback;
+import io.github.fa4nir.core.annotations.*;
 
 @Receiver(name = "ReceiverCustomListenerId")
 public class CaseCustomListenerSpec {
