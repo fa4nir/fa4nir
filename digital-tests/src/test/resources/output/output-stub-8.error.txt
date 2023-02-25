@@ -1,0 +1,4 @@
+method customListener in class com.github.interceptors.CaseCustomListenerSpec cannot be applied to given types;
+  required: java.lang.String
+  found: no arguments
+  reason: actual and formal argument lists differ in length
