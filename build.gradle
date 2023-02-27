@@ -7,10 +7,22 @@ buildscript {
 plugins {
     id 'java'
     id 'java-library'
+    id 'signing'
+    id 'maven-publish'
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
+
+task sourceJar(type: Jar) {
+    classifier "sources"
+    from sourceSets.main.allJava
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier "javadoc"
+    from javadoc.destinationDir
+}
 
 allprojects {
     apply plugin: 'java-library'
@@ -52,10 +64,72 @@ project(':fa4nir-tests') {
 
 tasks.register('fatJar', Jar) {
     archiveFileName.set("${rootProject.name}-${rootProject.version}.jar")
+    from {
+        subprojects.collect { it.sourceSets.main.output }
+    }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 
 dependencies {
     implementation project(':processor')
+}
+
+artifacts {
+    archives fatJar
+    archives sourceJar
+    archives javadocJar
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+
+            groupId = 'io.github.hellcrowandrey'
+            artifactId = 'fa4nir'
+            version = '1.0.0'
+
+            artifact(sourceJar)
+            artifact(javadocJar)
+            artifact(fatJar)
+
+            pom {
+                name = 'fa4nir'
+                description = 'Annotation proceser to work with listeners'
+                url = 'https://github.com/fa4nir/fa4nir'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = System.getenv('DEVELOPER_ID')
+                        name = System.getenv('DEVELOPER_NAME')
+                        email = System.getenv('DEVELOPER_EMAIL')
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/fa4nir/fa4nir.git'
+                    developerConnection = 'scm:git:ssh://github.com/fa4nir/fa4nir.git'
+                    url = 'https://github.com/fa4nir/fa4nir'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "OSSRH"
+            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = System.getenv('SONATYPE_USERNAME')
+                password = System.getenv('SONATYPE_PASSWORD')
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
 }
