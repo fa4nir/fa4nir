@@ -64,6 +64,11 @@ project(':fa4nir-tests') {
 
 tasks.register('fatJar', Jar) {
     archiveFileName.set("${rootProject.name}-${rootProject.version}.jar")
+    from {
+        subprojects.stream()
+                .filter { project -> project.name != 'examples' }
+                .collect { it.sourceSets.main.output }
+    }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 }
