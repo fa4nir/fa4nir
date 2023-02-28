@@ -85,7 +85,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
 
-            groupId = 'io.github.hellcrowandrey'
+            groupId = 'io.github.fa4nir'
             artifactId = 'fa4nir'
             version = '1.0.0'
 
