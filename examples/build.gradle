@@ -1,6 +1,5 @@
 dependencies {
-    implementation project(":core")
-    implementation project(":processor")
-    annotationProcessor project(":processor")
+    implementation 'io.github.fa4nir:fa4nir:1.0.0'
+    annotationProcessor 'io.github.fa4nir:fa4nir:1.0.0'
     implementation 'com.google.guava:guava:31.1-jre'
 }
