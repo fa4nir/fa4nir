@@ -97,7 +97,7 @@ publishing {
 
             pom {
                 name = 'fa4nir'
-                description = 'Annotation proceser to work with listeners'
+                description = 'Annotation processor to code generation to build easy way of coding and testing your applications'
                 url = 'https://github.com/fa4nir/fa4nir'
                 licenses {
                     license {
