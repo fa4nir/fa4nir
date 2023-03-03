@@ -13,10 +13,8 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import java.beans.Introspector;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class OverridingMethodsFactory implements InterceptMethodFactory {
@@ -33,6 +31,8 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
         FallBackMethod annotationFallBackMethod = sourceMethod.getAnnotation(FallBackMethod.class);
         if (Objects.nonNull(annotationNotifyTo)) {
             List<? extends VariableElement> sourceParameters = sourceMethod.getParameters();
+            Map<String, ? extends VariableElement> groupOfSourceParameters = sourceParameters.stream()
+                    .collect(Collectors.toMap(k -> k.getSimpleName().toString(), Function.identity()));
             String targetFieldName = Introspector.decapitalize(target.getSimpleName().toString());
             String notifyToTarget = annotationNotifyTo.name();
             String fallBackMethodName = Objects.nonNull(annotationFallBackMethod) ? annotationFallBackMethod.name() : "";
@@ -41,16 +41,18 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
             DelegateResultTo[] delegateResultToAnnotations = targetMethod.getAnnotationsByType(DelegateResultTo.class);
             ExecutableElement fallBackMethod = findMethod(target, fallBackMethodName);
             TypeMirror targetMethodReturnType = targetMethod.getReturnType();
-            List<? extends VariableElement> targetParameters = Objects.requireNonNull(targetMethod, "Cannot find method")
-                    .getParameters();
+            List<? extends VariableElement> targetParameters = Objects.requireNonNull(
+                    targetMethod,
+                    String.format("Cannot find method %s", targetMethod.getSimpleName())
+            ).getParameters();
             MethodSpec.Builder builder = MethodSpec.overriding(sourceMethod);
             builder.beginControlFlow("try");
-            String parametersAsString = parametersAsString(sourceParameters, targetParameters);
+            String parametersAsString = parametersAsString(sourceParameters, groupOfSourceParameters, targetParameters);
             if (Objects.nonNull(delegateResultToAnnotations) && delegateResultToAnnotations.length > 0) {
                 builder.addStatement("$T $N = this.$N.$N($N)", ParameterizedTypeName.get(targetMethodReturnType), resultName,
                         targetFieldName, targetMethod.getSimpleName().toString(), parametersAsString);
                 List<CodeBlock> callsToDelegateMethods = generateCallToDelegateMethods(resultName, target.getEnclosedElements(), targetFieldName,
-                        sourceParameters, delegateResultToAnnotations);
+                        sourceParameters, groupOfSourceParameters, delegateResultToAnnotations);
                 callsToDelegateMethods.forEach(builder::addStatement);
             } else {
                 builder.addStatement("this.$N.$N($N)",
@@ -84,45 +86,57 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
                 .findFirst().orElse(null);
     }
 
-    private List<CodeBlock> generateCallToDelegateMethods(String resultName, List<? extends Element> targetElements, String currentClassFieldName,
+    private List<CodeBlock> generateCallToDelegateMethods(String resultName,
+                                                          List<? extends Element> targetElements,
+                                                          String currentClassFieldName,
                                                           List<? extends VariableElement> targetParameters,
+                                                          Map<String, ? extends VariableElement> groupOfSourceParameters,
                                                           DelegateResultTo[] delegateToMethodAnnotations) {
         return Arrays.stream(delegateToMethodAnnotations)
                 .collect(Collectors.toCollection(LinkedHashSet::new)).stream()
                 .flatMap(delegateToMethod -> {
                     String methodName = delegateToMethod.method();
-                    return collectDelegateParameters(resultName, targetElements, targetParameters, methodName).stream()
+                    return collectDelegateParameters(resultName, targetElements, targetParameters, groupOfSourceParameters, methodName).stream()
                             .map(delegatorParametersAsString -> CodeBlock.of("this.$N.$N($N)", currentClassFieldName, methodName, delegatorParametersAsString));
                 }).collect(Collectors.toList());
     }
 
-    private List<String> collectDelegateParameters(String resultName, List<? extends Element> targetElements, List<? extends VariableElement> targetParameters, String methodName) {
+    private List<String> collectDelegateParameters(String resultName,
+                                                   List<? extends Element> targetElements,
+                                                   List<? extends VariableElement> targetParameters,
+                                                   Map<String, ? extends VariableElement> groupOfSourceParameters,
+                                                   String methodName) {
         return targetElements.stream()
                 .filter(method -> method instanceof ExecutableElement)
                 .map(delegator -> ((ExecutableElement) delegator))
                 .filter(delegator -> delegator.getSimpleName().toString().equals(methodName))
-                .map(delegator -> delegator.getParameters().stream().map(parameter -> retrieveLink(resultName, targetParameters, parameter))
+                .map(delegator -> delegator.getParameters().stream().map(parameter ->
+                                retrieveLink(resultName, targetParameters, groupOfSourceParameters, parameter))
                         .collect(Collectors.joining(","))
                 ).collect(Collectors.toList());
     }
 
-    private String parametersAsString(List<? extends VariableElement> targetParameters, List<? extends VariableElement> parameters) {
+    private String parametersAsString(List<? extends VariableElement> targetParameters,
+                                      Map<String, ? extends VariableElement> groupOfSourceParameters,
+                                      List<? extends VariableElement> parameters) {
         return parameters.stream()
                 .map(parameter -> parameter.getAnnotation(FetchParam.class))
                 .filter(Objects::nonNull)
-                .map(FetchParam::num)
-                .map(targetParameters::get)
+                .map(annotation -> getVariableElement(targetParameters, groupOfSourceParameters, annotation))
                 .map(VariableElement::getSimpleName)
                 .collect(Collectors.joining(","));
     }
 
-    private String retrieveLink(String resultName, List<? extends VariableElement> targetParameters, VariableElement parameter) {
+    private String retrieveLink(String resultName,
+                                List<? extends VariableElement> targetParameters,
+                                Map<String, ? extends VariableElement> groupOfSourceParameters,
+                                VariableElement parameter) {
         FetchResult actualResult = parameter.getAnnotation(FetchResult.class);
         FetchParam fetchParam = parameter.getAnnotation(FetchParam.class);
         if (Objects.nonNull(actualResult)) {
             return resultName;
         } else if (Objects.nonNull(fetchParam)) {
-            return targetParameters.get(fetchParam.num()).getSimpleName().toString();
+            return getVariableElement(targetParameters, groupOfSourceParameters, fetchParam).getSimpleName().toString();
         }
         return "";
     }

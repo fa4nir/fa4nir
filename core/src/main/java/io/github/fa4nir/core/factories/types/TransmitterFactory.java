@@ -3,8 +3,10 @@ package io.github.fa4nir.core.factories.types;
 import com.squareup.javapoet.*;
 import io.github.fa4nir.core.annotations.Receiver;
 import io.github.fa4nir.core.annotations.Transmitter;
+import io.github.fa4nir.core.exceptions.ValidationExceptionsDeclarations;
 import io.github.fa4nir.core.factories.methods.InterceptMethodFactory;
 import io.github.fa4nir.core.utils.TypeSpecConstructorsUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -13,10 +15,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import java.beans.Introspector;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TransmitterFactory implements AnnotationTransferFactory {
@@ -32,12 +31,14 @@ public class TransmitterFactory implements AnnotationTransferFactory {
         TypeMirror typeMirror = element.asType();
         TypeName sourceClassType = ClassName.get(typeMirror);
         Transmitter transmitter = element.getAnnotation(Transmitter.class);
-        String beanName = transmitter.beanName();
-        String receiverName = transmitter.receiverName();
+        String beanName = Optional.of(transmitter.beanName())
+                .filter(StringUtils::isNoneBlank).orElseThrow(ValidationExceptionsDeclarations::beanNameIsBlank);
+        String receiverName = Optional.of(transmitter.receiverName())
+                .filter(StringUtils::isNoneBlank).orElseThrow(ValidationExceptionsDeclarations::receiverNameIsBlank);
         boolean isSupper = transmitter.isSupper();
         Element target = receivers.stream()
                 .filter(e -> e.getAnnotation(Receiver.class).name().equals(receiverName))
-                .findFirst().orElse(null);
+                .findFirst().orElseThrow(() -> ValidationExceptionsDeclarations.targetClassNotFound(transmitter));
         TypeName targetTypeName = ClassName.get(target.asType());
         String targetAsFieldName = Introspector.decapitalize(target.getSimpleName().toString());
         TypeSpec.Builder builder = TypeSpec.classBuilder(String.format("%sImpl", beanName));
