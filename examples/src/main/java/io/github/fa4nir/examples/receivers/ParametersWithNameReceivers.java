@@ -23,8 +23,8 @@ public class ParametersWithNameReceivers {
     }
 
     public void receivePersonWithNameAndWeight(@FetchResult Person person,
-                                               @FetchParam(num = 1) Double p) {
-        log.log(Level.INFO, "Message {0}, {1}", new Object[]{person, p});
+                                               @FetchParam(num = 1) Double weight) {
+        log.log(Level.INFO, "Message {0}, {1}", new Object[]{person, weight});
     }
 
     public void fallbackListenerWithParametersName(@ErrorSignal Exception e, @FetchParam(name = "personName") String name) {

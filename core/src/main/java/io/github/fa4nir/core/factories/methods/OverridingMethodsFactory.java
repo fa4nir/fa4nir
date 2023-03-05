@@ -30,6 +30,7 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
         NotifyTo annotationNotifyTo = sourceMethod.getAnnotation(NotifyTo.class);
         FallBackMethod annotationFallBackMethod = sourceMethod.getAnnotation(FallBackMethod.class);
         if (Objects.nonNull(annotationNotifyTo)) {
+            MethodSpec.Builder builder = MethodSpec.overriding(sourceMethod);
             List<? extends VariableElement> sourceParameters = sourceMethod.getParameters();
             Map<String, ? extends VariableElement> groupOfSourceParameters = sourceParameters.stream()
                     .collect(Collectors.toMap(k -> k.getSimpleName().toString(), Function.identity()));
@@ -42,10 +43,8 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
             ExecutableElement fallBackMethod = findMethod(target, fallBackMethodName);
             TypeMirror targetMethodReturnType = targetMethod.getReturnType();
             List<? extends VariableElement> targetParameters = Objects.requireNonNull(
-                    targetMethod,
-                    String.format("Cannot find method %s", targetMethod.getSimpleName())
+                    targetMethod, String.format("Cannot find method %s", targetMethod.getSimpleName())
             ).getParameters();
-            MethodSpec.Builder builder = MethodSpec.overriding(sourceMethod);
             builder.beginControlFlow("try");
             String parametersAsString = parametersAsString(sourceParameters, groupOfSourceParameters, targetParameters);
             if (Objects.nonNull(delegateResultToAnnotations) && delegateResultToAnnotations.length > 0) {
