@@ -4,7 +4,11 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
-import io.github.fa4nir.core.annotations.*;
+import io.github.fa4nir.core.annotations.DelegateResultTo;
+import io.github.fa4nir.core.annotations.FallBackMethod;
+import io.github.fa4nir.core.annotations.FetchParam;
+import io.github.fa4nir.core.annotations.NotifyTo;
+import io.github.fa4nir.core.builders.DelegateMethodsDefinitionBuilder;
 import io.github.fa4nir.core.factories.fallbacks.FallBackMethodFactory;
 import org.apache.commons.lang3.StringUtils;
 
@@ -13,7 +17,9 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import java.beans.Introspector;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -50,8 +56,14 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
             if (Objects.nonNull(delegateResultToAnnotations) && delegateResultToAnnotations.length > 0) {
                 builder.addStatement("$T $N = this.$N.$N($N)", ParameterizedTypeName.get(targetMethodReturnType), resultName,
                         targetFieldName, targetMethod.getSimpleName().toString(), parametersAsString);
-                List<CodeBlock> callsToDelegateMethods = generateCallToDelegateMethods(resultName, target.getEnclosedElements(), targetFieldName,
-                        sourceParameters, groupOfSourceParameters, delegateResultToAnnotations);
+                List<CodeBlock> callsToDelegateMethods = DelegateMethodsDefinitionBuilder.newBuilder()
+                        .setResultName(resultName)
+                        .setTargetEnclosedElements(target.getEnclosedElements())
+                        .setTargetFieldName(targetFieldName)
+                        .setSourceParameters(sourceParameters)
+                        .setGroupOfSourceParameters(groupOfSourceParameters)
+                        .setDelegateResultToAnnotations(delegateResultToAnnotations)
+                        .build();
                 callsToDelegateMethods.forEach(builder::addStatement);
             } else {
                 builder.addStatement("this.$N.$N($N)",
@@ -85,36 +97,6 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
                 .findFirst().orElse(null);
     }
 
-    private List<CodeBlock> generateCallToDelegateMethods(String resultName,
-                                                          List<? extends Element> targetElements,
-                                                          String currentClassFieldName,
-                                                          List<? extends VariableElement> targetParameters,
-                                                          Map<String, ? extends VariableElement> groupOfSourceParameters,
-                                                          DelegateResultTo[] delegateToMethodAnnotations) {
-        return Arrays.stream(delegateToMethodAnnotations)
-                .collect(Collectors.toCollection(LinkedHashSet::new)).stream()
-                .flatMap(delegateToMethod -> {
-                    String methodName = delegateToMethod.method();
-                    return collectDelegateParameters(resultName, targetElements, targetParameters, groupOfSourceParameters, methodName).stream()
-                            .map(delegatorParametersAsString -> CodeBlock.of("this.$N.$N($N)", currentClassFieldName, methodName, delegatorParametersAsString));
-                }).collect(Collectors.toList());
-    }
-
-    private List<String> collectDelegateParameters(String resultName,
-                                                   List<? extends Element> targetElements,
-                                                   List<? extends VariableElement> targetParameters,
-                                                   Map<String, ? extends VariableElement> groupOfSourceParameters,
-                                                   String methodName) {
-        return targetElements.stream()
-                .filter(method -> method instanceof ExecutableElement)
-                .map(delegator -> ((ExecutableElement) delegator))
-                .filter(delegator -> delegator.getSimpleName().toString().equals(methodName))
-                .map(delegator -> delegator.getParameters().stream().map(parameter ->
-                                retrieveLink(resultName, targetParameters, groupOfSourceParameters, parameter))
-                        .collect(Collectors.joining(","))
-                ).collect(Collectors.toList());
-    }
-
     private String parametersAsString(List<? extends VariableElement> targetParameters,
                                       Map<String, ? extends VariableElement> groupOfSourceParameters,
                                       List<? extends VariableElement> parameters) {
@@ -124,20 +106,6 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
                 .map(annotation -> getVariableElement(targetParameters, groupOfSourceParameters, annotation))
                 .map(VariableElement::getSimpleName)
                 .collect(Collectors.joining(","));
-    }
-
-    private String retrieveLink(String resultName,
-                                List<? extends VariableElement> targetParameters,
-                                Map<String, ? extends VariableElement> groupOfSourceParameters,
-                                VariableElement parameter) {
-        FetchResult actualResult = parameter.getAnnotation(FetchResult.class);
-        FetchParam fetchParam = parameter.getAnnotation(FetchParam.class);
-        if (Objects.nonNull(actualResult)) {
-            return resultName;
-        } else if (Objects.nonNull(fetchParam)) {
-            return getVariableElement(targetParameters, groupOfSourceParameters, fetchParam).getSimpleName().toString();
-        }
-        return "";
     }
 
 }
