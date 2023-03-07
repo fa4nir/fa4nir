@@ -12,6 +12,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 import java.util.Objects;
 import java.util.Set;
 
@@ -33,17 +34,22 @@ public class TransmitterProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (!roundEnv.processingOver()) {
-            Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(Transmitter.class);
-            Set<? extends Element> receivers = roundEnv.getElementsAnnotatedWith(Receiver.class);
-            for (Element element : elements) {
-                PackageElement packageElement = this.processingEnv.getElementUtils().getPackageOf(element);
-                TypeSpec typeSpec = this.functionInterceptorFactory.newTypeSpec(element, this.processingEnv, receivers);
-                if (Objects.nonNull(typeSpec)) {
-                    JavaFileWriterUtils.write(this.processingEnv,
-                            String.format("%s.impl", packageElement.getQualifiedName()),
-                            typeSpec
-                    );
+            try {
+                Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(Transmitter.class);
+                Set<? extends Element> receivers = roundEnv.getElementsAnnotatedWith(Receiver.class);
+                for (Element element : elements) {
+                    PackageElement packageElement = this.processingEnv.getElementUtils().getPackageOf(element);
+                    TypeSpec typeSpec = this.functionInterceptorFactory.newTypeSpec(element, this.processingEnv, receivers);
+                    if (Objects.nonNull(typeSpec)) {
+                        JavaFileWriterUtils.write(this.processingEnv,
+                                String.format("%s.impl", packageElement.getQualifiedName()),
+                                typeSpec
+                        );
+                    }
                 }
+            } catch (Throwable e) {
+                this.processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
+                throw e;
             }
         }
         return false;

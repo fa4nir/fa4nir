@@ -36,7 +36,7 @@ jobs:
       - name: Publish with Gradle
         uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
         with:
-          arguments: clean jar fatJar publish -Psigning.secretKeyRingFile=secring.gpg -Psigning.keyId=${{secrets.SIGNING_KEYID}} -Psigning.password=${{secrets.SIGNING_PASSWORD}}
+          arguments: clean build publish -Psigning.secretKeyRingFile=secring.gpg -Psigning.keyId=${{secrets.SIGNING_KEYID}} -Psigning.password=${{secrets.SIGNING_PASSWORD}}
         env:
           SONATYPE_USERNAME: ${{secrets.SONATYPE_USERNAME}}
           SONATYPE_PASSWORD: ${{secrets.SONATYPE_PASSWORD}}

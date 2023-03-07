@@ -14,12 +14,31 @@ plugins {
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
-task sourceJar(type: Jar) {
+tasks.register('sourceJar', Jar) {
+    dependsOn classes
     classifier "sources"
-    from sourceSets.main.allJava
+    from {
+        subprojects.sourceSets.main.allJava
+    }
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
+tasks.register('aggregatedJavadocs', Javadoc) { aggregated ->
+    group = 'Documentation'
+    destinationDir = file("$buildDir/docs/javadoc")
+
+    subprojects.each { proj ->
+        proj.tasks.withType(Javadoc) { javadocTask ->
+            aggregated.source += javadocTask.source
+            aggregated.classpath += javadocTask.classpath
+            aggregated.excludes += javadocTask.excludes
+            aggregated.includes += javadocTask.includes
+        }
+    }
+}
+
+tasks.register('javadocJar', Jar) {
+    group 'Documentation'
+    dependsOn aggregatedJavadocs
     classifier "javadoc"
     from javadoc.destinationDir
 }
@@ -64,6 +83,22 @@ project(':fa4nir-tests') {
 
 tasks.register('fatJar', Jar) {
     archiveFileName.set("${rootProject.name}-${rootProject.version}.jar")
+    from {
+        subprojects.stream()
+                .filter { project -> project.name != 'examples' }
+                .collect { it.sourceSets.main.output }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+jar {
+    archiveFileName.set("${rootProject.name}-${rootProject.version}.jar")
+    from {
+        subprojects.stream()
+                .filter { project -> project.name != 'examples' }
+                .collect { it.sourceSets.main.output }
+    }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 }
@@ -73,7 +108,7 @@ dependencies {
 }
 
 artifacts {
-    archives fatJar
+    archives jar
     archives sourceJar
     archives javadocJar
 }
@@ -88,11 +123,11 @@ publishing {
 
             artifact(sourceJar)
             artifact(javadocJar)
-            artifact(fatJar)
+            artifact(jar)
 
             pom {
                 name = 'fa4nir'
-                description = 'Annotation proceser to work with listeners'
+                description = 'Annotation processor to code generation to build easy way of coding and testing your applications'
                 url = 'https://github.com/fa4nir/fa4nir'
                 licenses {
                     license {

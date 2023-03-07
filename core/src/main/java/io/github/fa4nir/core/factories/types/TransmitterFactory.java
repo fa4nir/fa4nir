@@ -1,10 +1,17 @@
 package io.github.fa4nir.core.factories.types;
 
-import com.squareup.javapoet.*;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 import io.github.fa4nir.core.annotations.Receiver;
 import io.github.fa4nir.core.annotations.Transmitter;
+import io.github.fa4nir.core.exceptions.ValidationExceptionsDeclarations;
+import io.github.fa4nir.core.factories.fields.FieldsFactory;
 import io.github.fa4nir.core.factories.methods.InterceptMethodFactory;
 import io.github.fa4nir.core.utils.TypeSpecConstructorsUtils;
+import io.github.fa4nir.core.utils.ValidationUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -15,7 +22,7 @@ import javax.lang.model.type.TypeMirror;
 import java.beans.Introspector;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,8 +30,11 @@ public class TransmitterFactory implements AnnotationTransferFactory {
 
     private final InterceptMethodFactory overridingInterceptor;
 
-    public TransmitterFactory(InterceptMethodFactory overridingInterceptor) {
+    private final FieldsFactory transmitterTargetFieldsFactory;
+
+    public TransmitterFactory(InterceptMethodFactory overridingInterceptor, FieldsFactory transmitterTargetFieldsFactory) {
         this.overridingInterceptor = overridingInterceptor;
+        this.transmitterTargetFieldsFactory = transmitterTargetFieldsFactory;
     }
 
     @Override
@@ -32,29 +42,23 @@ public class TransmitterFactory implements AnnotationTransferFactory {
         TypeMirror typeMirror = element.asType();
         TypeName sourceClassType = ClassName.get(typeMirror);
         Transmitter transmitter = element.getAnnotation(Transmitter.class);
-        String beanName = transmitter.beanName();
-        String receiverName = transmitter.receiverName();
+        String beanName = Optional.of(transmitter.beanName())
+                .filter(StringUtils::isNoneBlank).orElseThrow(ValidationExceptionsDeclarations::beanNameIsBlank);
+        String receiverName = Optional.of(transmitter.receiverName())
+                .filter(StringUtils::isNoneBlank).orElseThrow(ValidationExceptionsDeclarations::receiverNameIsBlank);
         boolean isSupper = transmitter.isSupper();
         Element target = receivers.stream()
                 .filter(e -> e.getAnnotation(Receiver.class).name().equals(receiverName))
-                .findFirst().orElse(null);
+                .findFirst().orElseThrow(() -> ValidationExceptionsDeclarations.targetClassNotFound(transmitter));
         TypeName targetTypeName = ClassName.get(target.asType());
         String targetAsFieldName = Introspector.decapitalize(target.getSimpleName().toString());
-        TypeSpec.Builder builder = TypeSpec.classBuilder(String.format("%sImpl", beanName));
         TypeElement source = processingEnv.getElementUtils().
                 getTypeElement(sourceClassType.toString());
-        List<? extends TypeMirror> interfaces = source.getInterfaces();
-        if (Objects.isNull(interfaces) || interfaces.size() != 1) {
-            throw new IllegalArgumentException("Cannot find main interface");
-        }
+        List<? extends TypeMirror> interfaces = ValidationUtils.validInterface(source.getInterfaces());
         Map.Entry<TypeMirror, List<MethodSpec>> overrideMethods = overrideMethods(isSupper, interfaces, source, target);
-        FieldSpec currentClassField = FieldSpec.builder(targetTypeName, targetAsFieldName)
-                .addModifiers(Modifier.PRIVATE, Modifier.FINAL)
-                .addModifiers()
-                .build();
-        builder.addField(currentClassField);
         MethodSpec.Builder constructor = TypeSpecConstructorsUtils.constructor(targetTypeName, targetAsFieldName);
-        return builder
+        return TypeSpec.classBuilder(beanName)
+                .addField(this.transmitterTargetFieldsFactory.newField(targetTypeName, targetAsFieldName))
                 .addSuperinterface(overrideMethods.getKey())
                 .addModifiers(Modifier.PUBLIC)
                 .addMethod(constructor.build())
