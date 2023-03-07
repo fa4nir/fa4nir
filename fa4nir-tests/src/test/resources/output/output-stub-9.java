@@ -9,17 +9,17 @@ import java.lang.String;
 public class TransmitterTemplateBeanCaseZero implements TransmitterTemplate {
     private final CaseCustomListenerSpec caseCustomListenerSpec;
 
-    public TransmitterTemplateBeanCaseZeroImpl(CaseCustomListenerSpec caseCustomListenerSpec) {
+    public TransmitterTemplateBeanCaseZero(CaseCustomListenerSpec caseCustomListenerSpec) {
         this.caseCustomListenerSpec = caseCustomListenerSpec;
     }
 
     @Override
-    public void onSuccess(String result) {
+    public void onSuccess(String myCustomName) {
         try {
-            String resultFromCustomListener = this.caseCustomListenerSpec.customListener(result);
-            this.caseCustomListenerSpec.delegatorAcceptor(resultFromCustomListener);
-            this.caseCustomListenerSpec.delegatorAcceptor(resultFromCustomListener,result);
-            this.caseCustomListenerSpec.supperDelegatorAcceptor(result,resultFromCustomListener);
+            String result = this.caseCustomListenerSpec.customListener(myCustomName);
+            this.caseCustomListenerSpec.delegatorAcceptor(result);
+            this.caseCustomListenerSpec.delegatorAcceptor(result,myCustomName);
+            this.caseCustomListenerSpec.supperDelegatorAcceptor(myCustomName,result);
         } catch (Exception e) {
             this.caseCustomListenerSpec.fallBackForCustomListener(e);
         }

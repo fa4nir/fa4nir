@@ -1,4 +1,4 @@
-package io.github.fa4nir.core.builders;
+package io.github.fa4nir.core.definitions;
 
 import com.squareup.javapoet.CodeBlock;
 import io.github.fa4nir.core.annotations.DelegateResultTo;

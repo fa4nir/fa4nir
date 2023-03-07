@@ -7,7 +7,7 @@ import java.lang.Override;
 import java.lang.String;
 import java.lang.Throwable;
 
-public class TransmitterTemplateBeanCaseZeroImpl implements FutureCallback<String> {
+public class TransmitterTemplateBeanCaseZero implements FutureCallback<String> {
     private final CaseCustomListenerSpec caseCustomListenerSpec;
 
     public TransmitterTemplateBeanCaseZeroImpl(CaseCustomListenerSpec caseCustomListenerSpec) {

@@ -5,7 +5,7 @@ import java.lang.Exception;
 import java.lang.Override;
 import java.lang.String;
 
-public class TransmitterTemplateBeanCaseZeroImpl implements CaseCustomListenerSpec.TransmitterTemplate {
+public class TransmitterTemplateBeanCaseZero implements CaseCustomListenerSpec.TransmitterTemplate {
     private final CaseCustomListenerSpec caseCustomListenerSpec;
 
     public TransmitterTemplateBeanCaseZeroImpl(CaseCustomListenerSpec caseCustomListenerSpec) {

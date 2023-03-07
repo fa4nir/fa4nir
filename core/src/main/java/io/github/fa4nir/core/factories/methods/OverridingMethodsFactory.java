@@ -8,7 +8,7 @@ import io.github.fa4nir.core.annotations.DelegateResultTo;
 import io.github.fa4nir.core.annotations.FallBackMethod;
 import io.github.fa4nir.core.annotations.FetchParam;
 import io.github.fa4nir.core.annotations.NotifyTo;
-import io.github.fa4nir.core.builders.DelegateMethodsDefinitionBuilder;
+import io.github.fa4nir.core.definitions.DelegateMethodsDefinitionBuilder;
 import io.github.fa4nir.core.factories.fallbacks.FallBackMethodFactory;
 import org.apache.commons.lang3.StringUtils;
 
