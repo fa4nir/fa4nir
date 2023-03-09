@@ -12,18 +12,18 @@ public class CustomListenerClass3 {
     private static final Logger log = Logger.getLogger(CustomListenerClass3.class.getName());
 
     @DelegateResultTo(method = "delegatorAcceptor")
-    public Person customListener(@FetchParam(num = 0) String name, @FetchParam(num = 2) List<String> payload) {
+    public Person customListener(@FetchParam(name = "parameter0") String name, @FetchParam(name = "parameters2") List<String> payload) {
         log.log(Level.INFO, "Enter: {0}, {1}", new Object[]{name, payload});
         return new Person(1L, "Mit9i", "mit9i@gmail.com");
     }
 
     public void delegatorAcceptor(@FetchResult Person person,
-                                  @FetchParam(num = 0) String name,
-                                  @FetchParam(num = 1) Integer payload) {
+                                  @FetchParam(name = "parameter0") String name,
+                                  @FetchParam(name = "parameter1") Integer payload) {
         log.log(Level.INFO, "Message {0}, {1}, {2}", new Object[]{person, name, payload});
     }
 
-    public void fallBackForCustomListener(@ErrorSignal Exception e, @FetchParam(num = 1) Integer number) {
+    public void fallBackForCustomListener(@ErrorSignal Exception e, @FetchParam(name = "parameter1") Integer number) {
         log.log(Level.WARNING, "Message: {0}, {1}", new Object[]{e.getMessage(), number});
     }
 

@@ -1,18 +1,11 @@
 package io.github.fa4nir.core.definitions;
 
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
-import io.github.fa4nir.core.annotations.Receiver;
 import io.github.fa4nir.core.annotations.Transmitter;
-import io.github.fa4nir.core.exceptions.ValidationExceptionsDeclarations;
 import io.github.fa4nir.core.utils.TypeSpecConstructorsUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.lang.model.element.Element;
-import java.beans.Introspector;
-import java.util.Optional;
-import java.util.Set;
 
 public class DefaultTransmitterDefinition implements TransmitterDefinition {
 
@@ -26,17 +19,13 @@ public class DefaultTransmitterDefinition implements TransmitterDefinition {
 
     private final String targetAsFieldName;
 
-    public DefaultTransmitterDefinition(Element element, Set<? extends Element> receivers) {
-        this.transmitter = element.getAnnotation(Transmitter.class);
-        String receiverName = Optional.of(this.transmitter.receiverName())
-                .filter(StringUtils::isNoneBlank).orElseThrow(ValidationExceptionsDeclarations::receiverNameIsBlank);
-        this.target = receivers.stream()
-                .filter(e -> e.getAnnotation(Receiver.class).name().equals(receiverName))
-                .findFirst().orElseThrow(() -> ValidationExceptionsDeclarations.targetClassNotFound(this.transmitter));
-        this.beanName = Optional.of(this.transmitter.beanName())
-                .filter(StringUtils::isNoneBlank).orElseThrow(ValidationExceptionsDeclarations::beanNameIsBlank);
-        this.targetTypeName = ClassName.get(this.target.asType());
-        this.targetAsFieldName = Introspector.decapitalize(this.target.getSimpleName().toString());
+    public DefaultTransmitterDefinition(Transmitter transmitter, Element target, String beanName,
+                                        TypeName targetTypeName, String targetAsFieldName) {
+        this.transmitter = transmitter;
+        this.target = target;
+        this.beanName = beanName;
+        this.targetTypeName = targetTypeName;
+        this.targetAsFieldName = targetAsFieldName;
     }
 
     @Override

@@ -49,7 +49,9 @@ public class TransmitterProcessor extends AbstractProcessor {
                     PackageElement packageElement = this.processingEnv.getElementUtils().getPackageOf(element);
                     AnnotationTransferFactory factory = this.functionInterceptorFactories.get(FactoryTypes.getKey(element.getKind()));
                     if (Objects.nonNull(factory)) {
-                        TransmitterDefinition definition = TransmitterDefinition.newDefinition(element, receivers);
+                        TransmitterDefinition definition = TransmitterDefinition.newDefinition(element, receivers)
+                                .transmitter().target().beanName()
+                                .targetTypeName().targetAsFieldName().build();
                         TypeSpec typeSpec = factory.newTypeSpec(element, this.processingEnv, definition);
                         if (Objects.nonNull(typeSpec)) {
                             JavaFileWriterUtils.write(this.processingEnv,
