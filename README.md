@@ -12,7 +12,7 @@ to listening your notifications.
 ## Build
 
 ```
-    gradle clean jar fatJar
+    gradle clean build
 ```
 
 ## Tests
@@ -24,6 +24,6 @@ to listening your notifications.
 ## Dependencies 
 
 ```
-    implementation 'io.github.fa4nir:fa4nir:1.0.0'
-    annotationProcessor 'io.github.fa4nir:fa4nir:1.0.0'
+    implementation 'io.github.fa4nir:fa4nir:1.0.1'
+    annotationProcessor 'io.github.fa4nir:fa4nir:1.0.1'
 ```
