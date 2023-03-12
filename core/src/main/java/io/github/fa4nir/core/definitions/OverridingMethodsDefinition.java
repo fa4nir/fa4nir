@@ -13,40 +13,40 @@ import java.util.Map;
 
 public interface OverridingMethodsDefinition {
 
-     ExecutableElement getSourceMethod();
+    ExecutableElement getSourceMethod();
 
-     Element getTarget();
+    Element getTarget();
 
-     NotifyTo getAnnotationNotifyTo();
+    NotifyTo getAnnotationNotifyTo();
 
-     FallBackMethod getAnnotationFallBackMethod();
+    FallBackMethod getAnnotationFallBackMethod();
 
-     List<? extends Element> getTargetMethods();
+    List<? extends Element> getTargetMethods();
 
-     List<? extends VariableElement> getSourceParameters();
+    List<? extends VariableElement> getSourceParameters();
 
-     Map<String, ? extends VariableElement> getGroupOfSourceParameters();
+    Map<String, ? extends VariableElement> getGroupOfSourceParameters();
 
-     String getTargetFieldName();
+    String getTargetFieldName();
 
-     ExecutableElement getTargetMethod();
+    ExecutableElement getTargetMethod();
 
-     String getResultName();
+    String getResultName();
 
-     DelegateResultTo[] getDelegateResultToAnnotations();
+    DelegateResultTo[] getDelegateResultToAnnotations();
 
-     ExecutableElement getFallBackMethod();
+    ExecutableElement getFallBackMethod();
 
-     TypeMirror getTargetMethodReturnType();
+    TypeMirror getTargetMethodReturnType();
 
-     List<? extends VariableElement> getTargetParameters();
+    List<? extends VariableElement> getTargetParameters();
 
-     List<ExecutableElement> getPredicateMethods();
+    List<ExecutableElement> getPredicateMethods();
 
-     String getNotifyToTarget();
+    String getNotifyToTarget();
 
-     String getFallBackMethodName();
+    String getFallBackMethodName();
 
-     boolean isPredicateMethodsSize();
+    boolean isPredicateMethodsSize();
 
 }
