@@ -3,6 +3,7 @@ package io.github.fa4nir.core.factories.fallbacks;
 import com.squareup.javapoet.CodeBlock;
 import io.github.fa4nir.core.annotations.ErrorSignal;
 import io.github.fa4nir.core.annotations.FetchParam;
+import io.github.fa4nir.core.utils.ParametersUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.lang.model.element.Element;
@@ -51,7 +52,7 @@ public class ExceptionFallBackMethodFactory implements FallBackMethodFactory {
         if (Objects.nonNull(errorSignal)) {
             return "e";
         } else if (Objects.nonNull(fetchParam)) {
-            return getVariableElement(targetParameters, groupOfSourceParameters, fetchParam)
+            return ParametersUtils.getVariableElement(targetParameters, groupOfSourceParameters, fetchParam)
                     .getSimpleName().toString();
         } else {
             return null;

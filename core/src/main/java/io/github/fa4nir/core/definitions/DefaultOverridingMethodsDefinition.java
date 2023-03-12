@@ -4,7 +4,6 @@ import io.github.fa4nir.core.annotations.DelegateResultTo;
 import io.github.fa4nir.core.annotations.FallBackMethod;
 import io.github.fa4nir.core.annotations.NotifyTo;
 import io.github.fa4nir.core.annotations.PayloadPredicate;
-import io.github.fa4nir.core.factories.MethodParametersExtractor;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.lang.model.element.Element;
@@ -18,7 +17,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class DefaultOverridingMethodsDefinition implements OverridingMethodsDefinitionBuilder, MethodParametersExtractor {
+public class DefaultOverridingMethodsDefinition implements OverridingMethodsDefinitionBuilder {
 
     private ExecutableElement sourceMethod;
 

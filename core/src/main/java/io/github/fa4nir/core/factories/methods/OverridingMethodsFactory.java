@@ -2,7 +2,6 @@ package io.github.fa4nir.core.factories.methods;
 
 import com.squareup.javapoet.MethodSpec;
 import io.github.fa4nir.core.annotations.FallBackMethod;
-import io.github.fa4nir.core.annotations.FetchParam;
 import io.github.fa4nir.core.annotations.NotifyTo;
 import io.github.fa4nir.core.definitions.OverridingMethodsDefinition;
 import io.github.fa4nir.core.definitions.OverridingMethodsDefinitionBuilder;
@@ -10,11 +9,9 @@ import io.github.fa4nir.core.wrappers.OverrideMethodWrapper;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.VariableElement;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
+
+import static io.github.fa4nir.core.utils.ParametersUtils.parametersAsString;
 
 public class OverridingMethodsFactory implements InterceptMethodFactory {
 
@@ -35,7 +32,8 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
             MethodSpec.Builder builder = MethodSpec.overriding(sourceMethod);
             OverridingMethodsDefinition definition = OverridingMethodsDefinitionBuilder.newBuilder()
                     .sourceMethod(sourceMethod).target(target).annotationNotifyTo(annotationNotifyTo)
-                    .annotationFallBackMethod(annotationFallBackMethod).notifyToTarget().targetMethods().sourceParameters()
+                    .annotationFallBackMethod(annotationFallBackMethod).notifyToTarget()
+                    .targetMethods().sourceParameters()
                     .groupOfSourceParameters().targetFieldName().targetMethod()
                     .resultName().delegateResultToAnnotations().fallBackMethodName()
                     .fallBackMethod().targetMethodReturnType()
@@ -53,17 +51,6 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
                             .build();
         }
         return MethodSpec.overriding(sourceMethod).build();
-    }
-
-    private String parametersAsString(List<? extends VariableElement> targetParameters,
-                                      Map<String, ? extends VariableElement> groupOfSourceParameters,
-                                      List<? extends VariableElement> parameters) {
-        return parameters.stream()
-                .map(parameter -> parameter.getAnnotation(FetchParam.class))
-                .filter(Objects::nonNull)
-                .map(annotation -> getVariableElement(targetParameters, groupOfSourceParameters, annotation))
-                .map(VariableElement::getSimpleName)
-                .collect(Collectors.joining(","));
     }
 
 }

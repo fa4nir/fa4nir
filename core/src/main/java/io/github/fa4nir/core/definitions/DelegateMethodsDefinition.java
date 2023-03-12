@@ -4,7 +4,7 @@ import com.squareup.javapoet.CodeBlock;
 import io.github.fa4nir.core.annotations.DelegateResultTo;
 import io.github.fa4nir.core.annotations.FetchParam;
 import io.github.fa4nir.core.annotations.FetchResult;
-import io.github.fa4nir.core.factories.MethodParametersExtractor;
+import io.github.fa4nir.core.utils.ParametersUtils;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -12,7 +12,7 @@ import javax.lang.model.element.VariableElement;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class DelegateMethodsDefinition implements DelegateMethodsDefinitionBuilder, MethodParametersExtractor {
+public class DelegateMethodsDefinition implements DelegateMethodsDefinitionBuilder {
 
     private String resultName;
 
@@ -106,7 +106,11 @@ public class DelegateMethodsDefinition implements DelegateMethodsDefinitionBuild
         if (Objects.nonNull(actualResult)) {
             return resultName;
         } else if (Objects.nonNull(fetchParam)) {
-            return getVariableElement(targetParameters, groupOfSourceParameters, fetchParam).getSimpleName().toString();
+            return ParametersUtils.getVariableElement(
+                    targetParameters,
+                    groupOfSourceParameters,
+                    fetchParam
+            ).getSimpleName().toString();
         }
         return "";
     }
