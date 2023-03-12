@@ -47,4 +47,6 @@ public interface OverridingMethodsDefinition {
 
      String getFallBackMethodName();
 
+     boolean isPredicateMethodsSize();
+
 }

@@ -273,6 +273,11 @@ public class DefaultOverridingMethodsDefinition implements OverridingMethodsDefi
             public String getFallBackMethodName() {
                 return fallBackMethodName;
             }
+
+            @Override
+            public boolean isPredicateMethodsSize() {
+                return predicateMethods.size() == 1;
+            }
         };
     }
 }
