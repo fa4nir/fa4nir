@@ -30,15 +30,9 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
         FallBackMethod annotationFallBackMethod = sourceMethod.getAnnotation(FallBackMethod.class);
         if (Objects.nonNull(annotationNotifyTo)) {
             MethodSpec.Builder builder = MethodSpec.overriding(sourceMethod);
-            OverridingMethodsDefinition definition = OverridingMethodsDefinitionBuilder.newBuilder()
-                    .sourceMethod(sourceMethod).target(target).annotationNotifyTo(annotationNotifyTo)
-                    .annotationFallBackMethod(annotationFallBackMethod).notifyToTarget()
-                    .targetMethods().sourceParameters()
-                    .groupOfSourceParameters().targetFieldName().targetMethod()
-                    .resultName().delegateResultToAnnotations().fallBackMethodName()
-                    .fallBackMethod().targetMethodReturnType()
-                    .targetParameters().predicateMethods()
-                    .build();
+            OverridingMethodsDefinition definition = ofDefinitions(
+                    sourceMethod, target, annotationNotifyTo, annotationFallBackMethod
+            );
             String parametersAsString = parametersAsString(
                     definition.getSourceParameters(),
                     definition.getGroupOfSourceParameters(),
@@ -51,6 +45,19 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
                             .build();
         }
         return MethodSpec.overriding(sourceMethod).build();
+    }
+
+    private OverridingMethodsDefinition ofDefinitions(ExecutableElement sourceMethod, Element target,
+                                                      NotifyTo annotationNotifyTo, FallBackMethod annotationFallBackMethod) {
+        return OverridingMethodsDefinitionBuilder.newBuilder()
+                .sourceMethod(sourceMethod).target(target).annotationNotifyTo(annotationNotifyTo)
+                .annotationFallBackMethod(annotationFallBackMethod).notifyToTarget()
+                .targetMethods().sourceParameters()
+                .groupOfSourceParameters().targetFieldName().targetMethod()
+                .resultName().delegateResultToAnnotations().fallBackMethodName()
+                .fallBackMethod().targetMethodReturnType()
+                .targetParameters().predicateMethods()
+                .build();
     }
 
 }
