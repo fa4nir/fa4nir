@@ -41,14 +41,16 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
                     .fallBackMethod().targetMethodReturnType()
                     .targetParameters().predicateMethods()
                     .build();
-            String parametersAsString = parametersAsString(definition.getSourceParameters(),
+            String parametersAsString = parametersAsString(
+                    definition.getSourceParameters(),
                     definition.getGroupOfSourceParameters(),
-                    definition.getTargetParameters());
-            if (definition.isPredicateMethodsSize()) {
-                return this.predicateWrapper.wrap(parametersAsString, definition, builder)
-                        .build();
-            }
-            return this.tryCatchMethodBaseWrapper.wrap(parametersAsString, definition, builder).build();
+                    definition.getTargetParameters()
+            );
+            return definition.isPredicateMethodsSize() ?
+                    this.predicateWrapper.wrap(parametersAsString, definition, builder)
+                            .build() :
+                    this.tryCatchMethodBaseWrapper.wrap(parametersAsString, definition, builder)
+                            .build();
         }
         return MethodSpec.overriding(sourceMethod).build();
     }
