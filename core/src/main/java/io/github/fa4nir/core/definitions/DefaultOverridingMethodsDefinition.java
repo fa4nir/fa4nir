@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.beans.Introspector;
 import java.util.List;
@@ -169,6 +170,11 @@ public class DefaultOverridingMethodsDefinition implements OverridingMethodsDefi
                 .collect(Collectors.toList());
         if (this.predicateMethods.size() > 1) {
             throw new IllegalArgumentException("Only one predicate method.");
+        } else if (this.predicateMethods.size() == 1) {
+            TypeMirror type = this.predicateMethods.get(0).getReturnType();
+            if (!TypeKind.BOOLEAN.equals(type.getKind())) {
+                throw new IllegalArgumentException("Method predicate should return boolean");
+            }
         }
         return this;
     }
