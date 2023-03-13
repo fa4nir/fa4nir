@@ -208,6 +208,31 @@ public class ReceiverTemplate {
 }
 ```
 
+`@DelegateResultTo` can be used for any delegated methods:
+
+Example:
+
+```java
+
+@Receiver(name = "custom-listener-receiver")
+public class ReceiverTemplate {
+
+    private static final Logger log = Logger.getLogger(CustomListenerClass2.class.getName());
+
+    @DelegateResultTo(method = "delegatorAcceptor0")
+    @DelegateResultTo(method = "delegatorAcceptor1")
+    @DelegateResultTo(method = "delegatorAcceptor2")
+    //... any
+    public Person receiverMethod(@FetchParam(num = 0) String name, @FetchParam(name = "parameters2") List<String> payload) {
+        log.log(Level.INFO, "Enter: {0}, {1}", new Object[]{name, payload});
+        return new Person(1L, "Mit9i", "mit9i@gmail.com");
+    }
+
+    //...
+
+}
+```
+
 Predicate (mark method as `@PayloadPredicate`, and required is method should return boolean)
 
 ```java
