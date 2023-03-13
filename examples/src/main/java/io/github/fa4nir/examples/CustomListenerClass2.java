@@ -27,7 +27,7 @@ public class CustomListenerClass2 {
         log.log(Level.WARNING, "Message: {0}, {1}", new Object[]{e.getMessage(), number});
     }
 
-    @Transmitter(beanName = "CustomListenerCase2", receiverName = "custom-listener-case-2", isSupper = false)
+    @Transmitter(beanName = "CustomListenerCase2", receiverName = "custom-listener-case-2")
     public interface TransmitterCase2Template extends Custom3 {
         @Override
         @NotifyTo(name = "customListener")
