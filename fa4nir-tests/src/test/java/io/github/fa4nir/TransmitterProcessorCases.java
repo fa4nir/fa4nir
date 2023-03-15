@@ -4,6 +4,7 @@ import com.google.common.truth.Truth;
 import com.google.testing.compile.JavaFileObjects;
 import com.google.testing.compile.JavaSourcesSubjectFactory;
 import io.github.fa4nir.processor.TransmitterProcessor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.tools.JavaFileObject;
@@ -212,6 +213,60 @@ class TransmitterProcessorCases {
                 .compilesWithoutError()
                 .and()
                 .generatesSources(output);
+    }
+
+    @Test
+    void givenInputAnnotationClass_whenRunProcessor_thenReceivedOutputFile_10() throws URISyntaxException, IOException {
+        String inputFileName = "input/input-stub-10.java";
+        String outputFileName = "output/output-stub-10.java";
+        JavaFileObject input = JavaFileObjects.forSourceString(
+                "com.github.interceptors.CaseCustomListenerSpec", loadJavaFileAsString(inputFileName)
+        );
+        JavaFileObject output = JavaFileObjects.forSourceString(
+                "com.github.interceptors.impl.TransmitterTemplateBeanCaseZeroImpl", loadJavaFileAsString(outputFileName)
+        );
+        Truth.assert_()
+                .about(JavaSourcesSubjectFactory.javaSources())
+                .that(List.of(input))
+                .processedWith(new TransmitterProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesSources(output);
+    }
+
+    @Test
+    void givenInputAnnotationClass_whenRunProcessor_thenReceivedOutputFile_10_1() throws URISyntaxException, IOException {
+        String inputFileName = "input/input-stub-10_1.java";
+        String outputFileName = "output/output-stub-10_1.error.txt";
+        JavaFileObject input = JavaFileObjects.forSourceString(
+                "com.github.interceptors.CaseCustomListenerSpec", loadJavaFileAsString(inputFileName)
+        );
+        String output = loadJavaFileAsString(outputFileName);
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            Truth.assert_()
+                    .about(JavaSourcesSubjectFactory.javaSources())
+                    .that(List.of(input))
+                    .processedWith(new TransmitterProcessor())
+                    .failsToCompile();
+        }, output);
+
+    }
+
+    @Test
+    void givenInputAnnotationClass_whenRunProcessor_thenReceivedOutputFile_10_2() throws URISyntaxException, IOException {
+        String inputFileName = "input/input-stub-10_2.java";
+        String outputFileName = "output/output-stub-10_2.error.txt";
+        JavaFileObject input = JavaFileObjects.forSourceString(
+                "com.github.interceptors.CaseCustomListenerSpec", loadJavaFileAsString(inputFileName)
+        );
+        String output = loadJavaFileAsString(outputFileName);
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            Truth.assert_()
+                    .about(JavaSourcesSubjectFactory.javaSources())
+                    .that(List.of(input))
+                    .processedWith(new TransmitterProcessor())
+                    .failsToCompile();
+        }, output);
     }
 
 }
