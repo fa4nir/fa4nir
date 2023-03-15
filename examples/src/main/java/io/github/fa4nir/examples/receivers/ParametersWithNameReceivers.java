@@ -3,6 +3,7 @@ package io.github.fa4nir.examples.receivers;
 import io.github.fa4nir.core.annotations.*;
 import io.github.fa4nir.examples.Person;
 
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -10,6 +11,11 @@ import java.util.logging.Logger;
 public class ParametersWithNameReceivers {
 
     private static final Logger log = Logger.getLogger(ParametersWithNameReceivers.class.getName());
+
+    @PayloadPredicate
+    public boolean isPayloadNotNull(@FetchParam(name = "personName") String payload) {
+        return Objects.nonNull(payload);
+    }
 
     @DelegateResultTo(method = "receivePersonWithName")
     @DelegateResultTo(method = "receivePersonWithNameAndWeight")

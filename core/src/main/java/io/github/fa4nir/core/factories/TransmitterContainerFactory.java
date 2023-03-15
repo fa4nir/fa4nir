@@ -8,6 +8,10 @@ import io.github.fa4nir.core.factories.methods.OverridingMethodsFactory;
 import io.github.fa4nir.core.factories.types.AnnotationTransferFactory;
 import io.github.fa4nir.core.factories.types.TransmitterAbstractClassFactory;
 import io.github.fa4nir.core.factories.types.TransmitterInterfaceFactory;
+import io.github.fa4nir.core.wrappers.BodyMethodBaseWrapper;
+import io.github.fa4nir.core.wrappers.OverrideMethodWrapper;
+import io.github.fa4nir.core.wrappers.PredicateMethodWrapper;
+import io.github.fa4nir.core.wrappers.TryCatchMethodBaseWrapper;
 
 public class TransmitterContainerFactory {
 
@@ -20,11 +24,19 @@ public class TransmitterContainerFactory {
     }
 
     public static InterceptMethodFactory overridingMethodFactory() {
-        return new OverridingMethodsFactory(exceptionFallBackMethodFactory());
+        return new OverridingMethodsFactory(tryCatchMethodBaseWrapper(), predicateWrapper());
     }
 
     public static FallBackMethodFactory exceptionFallBackMethodFactory() {
         return new ExceptionFallBackMethodFactory();
+    }
+
+    public static OverrideMethodWrapper tryCatchMethodBaseWrapper() {
+        return new TryCatchMethodBaseWrapper(exceptionFallBackMethodFactory(), new BodyMethodBaseWrapper());
+    }
+
+    public static OverrideMethodWrapper predicateWrapper() {
+        return new PredicateMethodWrapper(new TryCatchMethodBaseWrapper(exceptionFallBackMethodFactory(), new BodyMethodBaseWrapper()));
     }
 
 }

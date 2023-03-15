@@ -1,0 +1,1 @@
+Predicate mast contains any of parameters.
