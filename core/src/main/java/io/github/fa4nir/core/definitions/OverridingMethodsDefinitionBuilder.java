@@ -1,9 +1,6 @@
 package io.github.fa4nir.core.definitions;
 
-import io.github.fa4nir.core.annotations.DelegateResultTo;
-import io.github.fa4nir.core.annotations.FallBackMethod;
-import io.github.fa4nir.core.annotations.NotifyTo;
-import io.github.fa4nir.core.annotations.PayloadPredicate;
+import io.github.fa4nir.core.annotations.*;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.lang.model.element.Element;
@@ -58,6 +55,10 @@ public interface OverridingMethodsDefinitionBuilder {
 
     OverridingMethodsDefinitionBuilder fallBackMethodName();
 
+    OverridingMethodsDefinitionBuilder sourceReturnType();
+
+    OverridingMethodsDefinitionBuilder sourceMethodResultName();
+
     OverridingMethodsDefinition build();
 
     class DefaultOverridingMethodsDefinition implements OverridingMethodsDefinitionBuilder {
@@ -95,6 +96,12 @@ public interface OverridingMethodsDefinitionBuilder {
         private String notifyToTarget;
 
         private String fallBackMethodName;
+
+        private TypeMirror sourceMethodReturnType;
+
+        private String sourceMethodResultName;
+
+        private boolean isTargetMethodHasReturnStatement;
 
         DefaultOverridingMethodsDefinition() {
         }
@@ -168,6 +175,7 @@ public interface OverridingMethodsDefinitionBuilder {
         @Override
         public OverridingMethodsDefinitionBuilder targetMethod() {
             this.targetMethod = findMethod(this.target, this.notifyToTarget);
+            this.isTargetMethodHasReturnStatement = Objects.nonNull(this.targetMethod.getAnnotation(ReturnStatement.class));
             return this;
         }
 
@@ -231,6 +239,30 @@ public interface OverridingMethodsDefinitionBuilder {
         public OverridingMethodsDefinitionBuilder fallBackMethodName() {
             this.fallBackMethodName = Objects.nonNull(this.annotationFallBackMethod) ? this.annotationFallBackMethod.name() : "";
             return this;
+        }
+
+        @Override
+        public OverridingMethodsDefinitionBuilder sourceReturnType() {
+            this.sourceMethodReturnType = this.sourceMethod.getReturnType();
+            return this;
+        }
+
+        @Override
+        public OverridingMethodsDefinitionBuilder sourceMethodResultName() {
+            this.sourceMethodResultName = createSourceResult(this.sourceParameters, this.sourceMethod);
+            if (!this.isTargetMethodHasReturnStatement) {
+                this.resultName = "second" + StringUtils.capitalize(this.resultName);
+            }
+            return this;
+        }
+
+        private String createSourceResult(List<? extends VariableElement> sourceParameters, ExecutableElement targetMethod) {
+            String resultName = "result";
+            boolean isResultMatch = sourceParameters.stream().anyMatch(param -> param.getSimpleName().toString().equals("result"));
+            if (isResultMatch) {
+                resultName = String.format("%sOf%s", resultName, StringUtils.capitalize(targetMethod.getSimpleName().toString()));
+            }
+            return resultName;
         }
 
         @Override
@@ -325,6 +357,27 @@ public interface OverridingMethodsDefinitionBuilder {
                 public boolean isPredicateMethodsSize() {
                     return predicateMethods.size() == 1;
                 }
+
+                @Override
+                public TypeMirror sourceReturnType() {
+                    return sourceMethodReturnType;
+                }
+
+                @Override
+                public boolean hasSourceReturnType() {
+                    return !TypeKind.VOID.equals(sourceMethodReturnType.getKind());
+                }
+
+                @Override
+                public String sourceMethodResultName() {
+                    return sourceMethodResultName;
+                }
+
+                @Override
+                public boolean hasAnnotationReturnStatement() {
+                    return Objects.nonNull(targetMethod.getAnnotation(ReturnStatement.class));
+                }
+
             };
         }
     }
