@@ -242,13 +242,11 @@ class TransmitterProcessorCases {
                 "com.github.interceptors.CaseCustomListenerSpec", loadJavaFileAsString(inputFileName)
         );
         String output = loadJavaFileAsString(outputFileName);
-        Assertions.assertThrows(RuntimeException.class, () -> {
-            Truth.assert_()
-                    .about(JavaSourcesSubjectFactory.javaSources())
-                    .that(List.of(input))
-                    .processedWith(new TransmitterProcessor())
-                    .failsToCompile();
-        }, output);
+        Assertions.assertThrows(RuntimeException.class, () -> Truth.assert_()
+                .about(JavaSourcesSubjectFactory.javaSources())
+                .that(List.of(input))
+                .processedWith(new TransmitterProcessor())
+                .failsToCompile(), output);
 
     }
 
@@ -260,13 +258,30 @@ class TransmitterProcessorCases {
                 "com.github.interceptors.CaseCustomListenerSpec", loadJavaFileAsString(inputFileName)
         );
         String output = loadJavaFileAsString(outputFileName);
-        Assertions.assertThrows(RuntimeException.class, () -> {
-            Truth.assert_()
-                    .about(JavaSourcesSubjectFactory.javaSources())
-                    .that(List.of(input))
-                    .processedWith(new TransmitterProcessor())
-                    .failsToCompile();
-        }, output);
+        Assertions.assertThrows(RuntimeException.class, () -> Truth.assert_()
+                .about(JavaSourcesSubjectFactory.javaSources())
+                .that(List.of(input))
+                .processedWith(new TransmitterProcessor())
+                .failsToCompile(), output);
+    }
+
+    @Test
+    void givenInputAnnotationClass_whenRunProcessor_thenReceivedOutputFile_11() throws URISyntaxException, IOException {
+        String inputFileName = "input/input-stub-11.java";
+        String outputFileName = "output/output-stub-11.java";
+        JavaFileObject input = JavaFileObjects.forSourceString(
+                "com.github.interceptors.CaseCustomListenerSpec", loadJavaFileAsString(inputFileName)
+        );
+        JavaFileObject output = JavaFileObjects.forSourceString(
+                "com.github.interceptors.impl.TransmitterTemplateBeanCaseZeroImpl", loadJavaFileAsString(outputFileName)
+        );
+        Truth.assert_()
+                .about(JavaSourcesSubjectFactory.javaSources())
+                .that(List.of(input))
+                .processedWith(new TransmitterProcessor())
+                .compilesWithoutError()
+                .and()
+                .generatesSources(output);
     }
 
 }
