@@ -175,7 +175,8 @@ public interface OverridingMethodsDefinitionBuilder {
         @Override
         public OverridingMethodsDefinitionBuilder targetMethod() {
             this.targetMethod = findMethod(this.target, this.notifyToTarget);
-            this.isTargetMethodHasReturnStatement = Objects.nonNull(this.targetMethod.getAnnotation(ReturnStatement.class));
+            this.isTargetMethodHasReturnStatement =
+                    Objects.nonNull(this.targetMethod.getAnnotation(ReturnStatement.class));
             return this;
         }
 
@@ -237,13 +238,30 @@ public interface OverridingMethodsDefinitionBuilder {
 
         @Override
         public OverridingMethodsDefinitionBuilder fallBackMethodName() {
-            this.fallBackMethodName = Objects.nonNull(this.annotationFallBackMethod) ? this.annotationFallBackMethod.name() : "";
+            this.fallBackMethodName = Objects.nonNull(this.annotationFallBackMethod) ?
+                    this.annotationFallBackMethod.name() : "";
             return this;
         }
 
         @Override
         public OverridingMethodsDefinitionBuilder sourceReturnType() {
             this.sourceMethodReturnType = this.sourceMethod.getReturnType();
+            if (Objects.nonNull(this.sourceMethodReturnType)) {
+                long count = this.targetMethods.stream()
+                        .filter(method -> method instanceof ExecutableElement)
+                        .map(method -> ((ExecutableElement) method))
+                        .filter(method -> !this.annotationNotifyTo.name().equals(method.getSimpleName().toString()))
+                        .filter(method -> Objects.nonNull(method.getAnnotation(ReturnStatement.class)))
+                        .count();
+                if (count > 1) {
+                    throw new IllegalArgumentException("Return statement should have only one exemplar.");
+                }
+                if (!this.isTargetMethodHasReturnStatement && !this.sourceMethodReturnType.getKind().equals(TypeKind.VOID)) {
+                    if (count == 0) {
+                        throw new IllegalArgumentException("Should exist ReturnStatement annotation to mark which result should be return from listener.");
+                    }
+                }
+            }
             return this;
         }
 
@@ -251,7 +269,16 @@ public interface OverridingMethodsDefinitionBuilder {
         public OverridingMethodsDefinitionBuilder sourceMethodResultName() {
             this.sourceMethodResultName = createSourceResult(this.sourceParameters, this.sourceMethod);
             if (!this.isTargetMethodHasReturnStatement) {
-                this.resultName = "second" + StringUtils.capitalize(this.resultName);
+                boolean hasOne = this.targetMethods.stream()
+                        .filter(method -> method instanceof ExecutableElement)
+                        .map(method -> ((ExecutableElement) method))
+                        .filter(method -> !this.annotationNotifyTo.name().equals(method.getSimpleName().toString()))
+                        .anyMatch(method -> Objects.nonNull(method.getAnnotation(ReturnStatement.class)));
+                if (hasOne) {
+                    this.resultName = "second" + StringUtils.capitalize(this.resultName);
+                }
+            } else {
+                this.resultName = this.sourceMethodResultName;
             }
             return this;
         }

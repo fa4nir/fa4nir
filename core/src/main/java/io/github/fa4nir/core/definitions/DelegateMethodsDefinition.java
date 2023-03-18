@@ -95,22 +95,24 @@ public class DelegateMethodsDefinition implements DelegateMethodsDefinitionBuild
     }
 
     private CodeBlock codeBlock(ExecutableElement delegator) {
+        CodeBlock result;
         String parametersAsString = parametersAsString(delegator);
         ReturnStatement annotation = delegator.getAnnotation(ReturnStatement.class);
         if (Objects.nonNull(annotation)) {
-            return CodeBlock.of("$N = this.$N.$N($N)",
+            result = CodeBlock.of("$N = this.$N.$N($N)",
                     this.sourceResultName,
                     this.targetFieldName,
                     delegator.getSimpleName().toString(),
                     parametersAsString
             );
         } else {
-            return CodeBlock.of("this.$N.$N($N)",
+            result = CodeBlock.of("this.$N.$N($N)",
                     this.targetFieldName,
                     delegator.getSimpleName().toString(),
                     parametersAsString
             );
         }
+        return result;
     }
 
     private String parametersAsString(ExecutableElement delegator) {
