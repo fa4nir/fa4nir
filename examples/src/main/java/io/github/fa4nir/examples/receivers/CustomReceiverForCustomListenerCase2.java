@@ -1,15 +1,17 @@
-package io.github.fa4nir.examples;
+package io.github.fa4nir.examples.receivers;
 
 import io.github.fa4nir.core.annotations.*;
+import io.github.fa4nir.examples.listeners.CustomListenerWithExtendsAnotherListener;
+import io.github.fa4nir.examples.payloads.Person;
 
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Receiver(name = "custom-listener-case-2")
-public class CustomListenerClass2 {
+public class CustomReceiverForCustomListenerCase2 {
 
-    private static final Logger log = Logger.getLogger(CustomListenerClass2.class.getName());
+    private static final Logger log = Logger.getLogger(CustomReceiverForCustomListenerCase2.class.getName());
 
     @DelegateResultTo(method = "delegatorAcceptor")
     public Person customListener(@FetchParam(num = 0) String name, @FetchParam(num = 2) List<String> payload) {
@@ -28,7 +30,7 @@ public class CustomListenerClass2 {
     }
 
     @Transmitter(beanName = "CustomListenerCase2", receiverName = "custom-listener-case-2")
-    public interface TransmitterCase2Template extends Custom3 {
+    public interface TransmitterCase2Template extends CustomListenerWithExtendsAnotherListener {
         @Override
         @NotifyTo(name = "customListener")
         @FallBackMethod(name = "fallBackForCustomListener")

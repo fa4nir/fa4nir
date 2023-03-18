@@ -26,6 +26,8 @@ public interface DelegateMethodsDefinitionBuilder {
 
     DelegateMethodsDefinitionBuilder setDelegateResultToAnnotations(DelegateResultTo[] delegateResultToAnnotations);
 
+    DelegateMethodsDefinitionBuilder setSourceResultName(String sourceResultName);
+
     List<CodeBlock> build();
 
 }

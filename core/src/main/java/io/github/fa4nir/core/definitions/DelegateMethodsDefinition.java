@@ -4,6 +4,7 @@ import com.squareup.javapoet.CodeBlock;
 import io.github.fa4nir.core.annotations.DelegateResultTo;
 import io.github.fa4nir.core.annotations.FetchParam;
 import io.github.fa4nir.core.annotations.FetchResult;
+import io.github.fa4nir.core.annotations.ReturnStatement;
 import io.github.fa4nir.core.utils.ParametersUtils;
 
 import javax.lang.model.element.Element;
@@ -25,6 +26,8 @@ public class DelegateMethodsDefinition implements DelegateMethodsDefinitionBuild
     private Map<String, ? extends VariableElement> groupOfSourceParameters;
 
     private DelegateResultTo[] delegateResultToAnnotations;
+
+    private String sourceResultName;
 
     DelegateMethodsDefinition() {
     }
@@ -66,6 +69,12 @@ public class DelegateMethodsDefinition implements DelegateMethodsDefinitionBuild
     }
 
     @Override
+    public DelegateMethodsDefinitionBuilder setSourceResultName(String sourceResultName) {
+        this.sourceResultName = sourceResultName;
+        return this;
+    }
+
+    @Override
     public List<CodeBlock> build() {
         return generateCallToDelegateMethods();
     }
@@ -73,28 +82,43 @@ public class DelegateMethodsDefinition implements DelegateMethodsDefinitionBuild
     private List<CodeBlock> generateCallToDelegateMethods() {
         return Arrays.stream(this.delegateResultToAnnotations)
                 .collect(Collectors.toCollection(LinkedHashSet::new)).stream()
-                .flatMap(delegateToMethod ->
-                        collectDelegateParameters(
-                                delegateToMethod.method()).stream()
-                                .map(delegatorParametersAsString ->
-                                        CodeBlock.of("this.$N.$N($N)",
-                                                this.targetFieldName,
-                                                delegateToMethod.method(),
-                                                delegatorParametersAsString
-                                        )
-                                )
-                ).collect(Collectors.toList());
+                .flatMap(delegateToMethod -> collectDelegateParameters(delegateToMethod.method()).stream())
+                .collect(Collectors.toList());
     }
 
-    private List<String> collectDelegateParameters(String methodName) {
+    private List<CodeBlock> collectDelegateParameters(String methodName) {
         return this.targetEnclosedElements.stream()
                 .filter(method -> method instanceof ExecutableElement)
                 .map(delegator -> ((ExecutableElement) delegator))
                 .filter(delegator -> delegator.getSimpleName().toString().equals(methodName))
-                .map(delegator -> delegator.getParameters().stream().map(parameter ->
-                                retrieveLink(this.resultName, this.sourceParameters, this.groupOfSourceParameters, parameter))
-                        .collect(Collectors.joining(","))
-                ).collect(Collectors.toList());
+                .map(this::codeBlock).collect(Collectors.toList());
+    }
+
+    private CodeBlock codeBlock(ExecutableElement delegator) {
+        CodeBlock result;
+        String parametersAsString = parametersAsString(delegator);
+        ReturnStatement annotation = delegator.getAnnotation(ReturnStatement.class);
+        if (Objects.nonNull(annotation)) {
+            result = CodeBlock.of("$N = this.$N.$N($N)",
+                    this.sourceResultName,
+                    this.targetFieldName,
+                    delegator.getSimpleName().toString(),
+                    parametersAsString
+            );
+        } else {
+            result = CodeBlock.of("this.$N.$N($N)",
+                    this.targetFieldName,
+                    delegator.getSimpleName().toString(),
+                    parametersAsString
+            );
+        }
+        return result;
+    }
+
+    private String parametersAsString(ExecutableElement delegator) {
+        return delegator.getParameters().stream().map(parameter ->
+                        retrieveLink(this.resultName, this.sourceParameters, this.groupOfSourceParameters, parameter))
+                .collect(Collectors.joining(","));
     }
 
     private String retrieveLink(String resultName,

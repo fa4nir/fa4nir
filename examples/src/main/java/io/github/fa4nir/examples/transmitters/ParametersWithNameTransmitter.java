@@ -3,7 +3,7 @@ package io.github.fa4nir.examples.transmitters;
 import io.github.fa4nir.core.annotations.FallBackMethod;
 import io.github.fa4nir.core.annotations.NotifyTo;
 import io.github.fa4nir.core.annotations.Transmitter;
-import io.github.fa4nir.examples.CustomListenerType;
+import io.github.fa4nir.examples.listeners.CustomListenerType;
 
 import java.util.List;
 

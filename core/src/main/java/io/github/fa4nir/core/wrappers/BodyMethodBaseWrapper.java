@@ -14,8 +14,13 @@ public class BodyMethodBaseWrapper implements OverrideMethodWrapper {
     @Override
     public MethodSpec.Builder wrap(String parametersAsString, OverridingMethodsDefinition definition, MethodSpec.Builder builder) {
         if (Objects.nonNull(definition.getDelegateResultToAnnotations()) && definition.getDelegateResultToAnnotations().length > 0) {
-            builder.addStatement("$T $N = this.$N.$N($N)", ParameterizedTypeName.get(definition.getTargetMethodReturnType()), definition.getResultName(),
-                    definition.getTargetFieldName(), definition.getTargetMethod().getSimpleName().toString(), parametersAsString);
+            if (definition.hasAnnotationReturnStatement()) {
+                builder.addStatement("$N = this.$N.$N($N)", definition.sourceMethodResultName(),
+                        definition.getTargetFieldName(), definition.getTargetMethod().getSimpleName().toString(), parametersAsString);
+            } else {
+                builder.addStatement("$T $N = this.$N.$N($N)", ParameterizedTypeName.get(definition.getTargetMethodReturnType()), definition.getResultName(),
+                        definition.getTargetFieldName(), definition.getTargetMethod().getSimpleName().toString(), parametersAsString);
+            }
             List<CodeBlock> callsToDelegateMethods = ofDelegateDefinitions(definition);
             callsToDelegateMethods.forEach(builder::addStatement);
         } else {
@@ -33,6 +38,7 @@ public class BodyMethodBaseWrapper implements OverrideMethodWrapper {
                 .setSourceParameters(definition.getSourceParameters())
                 .setGroupOfSourceParameters(definition.getGroupOfSourceParameters())
                 .setDelegateResultToAnnotations(definition.getDelegateResultToAnnotations())
+                .setSourceResultName(definition.sourceMethodResultName())
                 .build();
     }
 
