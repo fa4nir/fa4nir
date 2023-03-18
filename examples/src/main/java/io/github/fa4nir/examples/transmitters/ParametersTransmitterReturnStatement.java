@@ -4,6 +4,7 @@ import io.github.fa4nir.core.annotations.FallBackMethod;
 import io.github.fa4nir.core.annotations.NotifyTo;
 import io.github.fa4nir.core.annotations.Transmitter;
 import io.github.fa4nir.examples.listeners.CustomListenerWithPersonAsReturnStatement;
+import io.github.fa4nir.examples.payloads.Person;
 
 @Transmitter(
         beanName = "TransmitterReturnStatement",
@@ -15,6 +16,6 @@ public interface ParametersTransmitterReturnStatement extends CustomListenerWith
     @Override
     @NotifyTo(name = "listener")
     @FallBackMethod(name = "fallback")
-    Integer onSuccess(String personName, Double personEight);
+    Person onSuccess(String personName, Double personEight);
 
 }

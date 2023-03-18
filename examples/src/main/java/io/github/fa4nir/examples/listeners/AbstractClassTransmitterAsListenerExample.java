@@ -1,4 +1,4 @@
-package io.github.fa4nir.examples;
+package io.github.fa4nir.examples.listeners;
 
 import io.github.fa4nir.core.annotations.FallBackMethod;
 import io.github.fa4nir.core.annotations.NotifyTo;

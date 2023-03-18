@@ -1,7 +1,7 @@
 package io.github.fa4nir.examples.receivers;
 
 import io.github.fa4nir.core.annotations.*;
-import io.github.fa4nir.examples.Person;
+import io.github.fa4nir.examples.payloads.Person;
 
 import java.util.Objects;
 import java.util.logging.Level;

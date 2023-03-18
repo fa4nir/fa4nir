@@ -1,6 +1,7 @@
 package io.github.fa4nir.examples.receivers;
 
 import io.github.fa4nir.core.annotations.*;
+import io.github.fa4nir.examples.payloads.Person;
 
 import java.util.Objects;
 import java.util.logging.Level;
@@ -23,10 +24,10 @@ public class TransmitterWithReturnStatement {
     }
 
     @ReturnStatement
-    public int firstAcceptor(@FetchResult Integer person,
-                             @FetchParam(name = "personName") String name) {
+    public Person firstAcceptor(@FetchResult Integer person,
+                                @FetchParam(name = "personName") String name) {
         log.log(Level.INFO, "Message {0}, {1}", new Object[]{person, name});
-        return 0;
+        return new Person();
     }
 
     public void nextAcceptor(@FetchResult Integer person,

@@ -100,8 +100,8 @@ Generated code:
 ```java
 package io.github.fa4nir.examples.impl;
 
-import io.github.fa4nir.examples.CustomListenerClass2;
-import io.github.fa4nir.examples.Person;
+import io.github.fa4nir.examples.receivers.CustomReceiverForCustomListenerCase2;
+import io.github.fa4nir.examples.payloads.Person;
 
 import java.lang.Exception;
 import java.lang.Integer;
@@ -154,8 +154,8 @@ Generated code:
 ```java
 package io.github.fa4nir.examples.impl;
 
-import io.github.fa4nir.examples.CustomListenerClass2;
-import io.github.fa4nir.examples.Person;
+import io.github.fa4nir.examples.receivers.CustomReceiverForCustomListenerCase2;
+import io.github.fa4nir.examples.payloads.Person;
 
 import java.lang.Exception;
 import java.lang.Integer;
@@ -269,3 +269,150 @@ Example:
     }
 }
 ```
+
+`@ReturnStatement` this annotation mark method which should return result to listener:
+
+Example_1:
+
+```java
+
+@Transmitter(beanName = "CustomListenerImpl", receiverName = "custom-listener-receiver")
+public interface TransmitterTemplate extends CustomListener {
+    @Override
+    @NotifyTo(name = "receiverMethod")
+    @FallBackMethod(name = "fallBackForReceiverMethod")
+    Person onSuccess(String parameter0,
+                     Integer parameter1,
+                     List<String> parameters2);
+
+    @Override
+    default void onFailure(Throwable t) {
+    }
+
+    @Override
+    default void onSuccess(String r) {
+    }
+
+    @Override
+    default void onSuccess1(String parameter0, Double parameters2) {
+    }
+}
+```
+
+```java
+
+@Receiver(name = "custom-listener-receiver")
+public class ReceiverTemplate {
+
+    private static final Logger log = Logger.getLogger(CustomListenerClass2.class.getName());
+
+    @ReturnStatement
+    @DelegateResultTo(method = "delegatorAcceptor0")
+    @DelegateResultTo(method = "delegatorAcceptor1")
+    @DelegateResultTo(method = "delegatorAcceptor2")
+    //... any
+    public Person receiverMethod(@FetchParam(num = 0) String name, @FetchParam(name = "parameters2") List<String> payload) {
+        log.log(Level.INFO, "Enter: {0}, {1}", new Object[]{name, payload});
+        return new Person(1L, "Mit9i", "mit9i@gmail.com");
+    }
+
+    //...
+
+}
+```
+
+Generated code:
+
+```java
+
+public class TransmitterWithNameInParameters implements ParametersWithNameTransmitter {
+    @Override
+    public Person onSuccess1(String personName, List<String> payload) {
+        Person result;
+        if (this.parametersWithNameReceivers.isPayloadNotNull(personName)) {
+            try {
+                result = this.parametersWithNameReceivers.receiverMethod(personName);
+                this.parametersWithNameReceivers.receivePersonWithName(result, personName);
+                this.parametersWithNameReceivers.receivePersonWithNameAndWeight(result, payload);
+            } catch (Exception e) {
+                this.parametersWithNameReceivers.fallbackListenerWithParametersName(e, personName);
+            }
+        }
+        return result;
+    }
+}
+
+```
+
+Example_2:
+
+```java
+
+@Transmitter(beanName = "CustomListenerImpl", receiverName = "custom-listener-receiver")
+public interface TransmitterTemplate extends CustomListener {
+    @Override
+    @NotifyTo(name = "receiverMethod")
+    @FallBackMethod(name = "fallBackForReceiverMethod")
+    Person onSuccess(String parameter0,
+                     Integer parameter1,
+                     List<String> parameters2);
+
+    @Override
+    default void onFailure(Throwable t) {
+    }
+
+    @Override
+    default void onSuccess(String r) {
+    }
+
+    @Override
+    default void onSuccess1(String parameter0, Double parameters2) {
+    }
+}
+```
+
+```java
+
+@Receiver(name = "custom-listener-receiver")
+public class ReceiverTemplate {
+
+    private static final Logger log = Logger.getLogger(CustomListenerClass2.class.getName());
+
+    @DelegateResultTo(method = "delegateMethod")
+    public int receiverMethod(@FetchParam(num = 0) String name, @FetchParam(name = "parameters2") List<String> payload) {
+        log.log(Level.INFO, "Enter: {0}, {1}", new Object[]{name, payload});
+        return 10;
+    }
+
+    public Person delegateMethod(@FetchResult int index) {
+        log.log(Level.INFO, "Enter: {0}, {1}", new Object[]{name, payload});
+        return new Person(index, "Mit9i", "mit9i@gmail.com");
+    }
+
+    //...
+
+}
+```
+
+Generated code:
+
+```java
+
+public class TransmitterWithNameInParameters implements ParametersWithNameTransmitter {
+    @Override
+    public Person onSuccess1(String personName, List<String> payload) {
+        Person result;
+        if (this.parametersWithNameReceivers.isPayloadNotNull(personName)) {
+            try {
+                int secondResult = this.receiverTemplate.receiverMethod(personName);
+                result = this.receiverTemplate.delegateMethod(secondResult);
+            } catch (Exception e) {
+                this.parametersWithNameReceivers.fallbackListenerWithParametersName(e, personName);
+            }
+        }
+        return result;
+    }
+}
+
+```
+
