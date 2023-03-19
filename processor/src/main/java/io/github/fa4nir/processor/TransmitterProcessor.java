@@ -54,14 +54,11 @@ public class TransmitterProcessor extends AbstractProcessor {
                         TransmitterDefinition definition = TransmitterDefinition.newDefinition(element, receivers)
                                 .transmitter().target().beanName()
                                 .targetTypeName().targetAsFieldName().build();
-                        TypeSpec.Builder typeSpec = factory.newTypeSpec(element, this.processingEnv, definition);
-                        if (Objects.nonNull(element.getAnnotation(SpringBean.class))) {
-                            typeSpec.addAnnotation(SpringBeanAnnotationsUtils.component());
-                        }
+                        TypeSpec typeSpec = wrap(element, factory.newTypeSpec(element, this.processingEnv, definition));
                         if (Objects.nonNull(typeSpec)) {
                             JavaFileWriterUtils.write(this.processingEnv,
                                     String.format("%s.impl", packageElement.getQualifiedName()),
-                                    typeSpec.build()
+                                    typeSpec
                             );
                         }
                     }
@@ -78,4 +75,16 @@ public class TransmitterProcessor extends AbstractProcessor {
     public Set<String> getSupportedOptions() {
         return super.getSupportedOptions();
     }
+
+    private TypeSpec wrap(Element element, TypeSpec.Builder builder) {
+        if (Objects.nonNull(builder)) {
+            if (Objects.nonNull(element.getAnnotation(SpringBean.class))) {
+                builder.addAnnotation(SpringBeanAnnotationsUtils.component());
+            }
+            return builder.build();
+        } else {
+            return null;
+        }
+    }
+
 }
