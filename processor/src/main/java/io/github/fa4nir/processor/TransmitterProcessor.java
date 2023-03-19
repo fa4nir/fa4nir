@@ -2,11 +2,13 @@ package io.github.fa4nir.processor;
 
 import com.squareup.javapoet.TypeSpec;
 import io.github.fa4nir.core.annotations.Receiver;
+import io.github.fa4nir.core.annotations.SpringBean;
 import io.github.fa4nir.core.annotations.Transmitter;
 import io.github.fa4nir.core.definitions.TransmitterDefinition;
 import io.github.fa4nir.core.factories.TransmitterContainerFactory;
 import io.github.fa4nir.core.factories.types.AnnotationTransferFactory;
 import io.github.fa4nir.core.utils.FactoryTypes;
+import io.github.fa4nir.core.utils.SpringBeanAnnotationsUtils;
 import io.github.fa4nir.processor.utils.JavaFileWriterUtils;
 
 import javax.annotation.processing.*;
@@ -52,11 +54,14 @@ public class TransmitterProcessor extends AbstractProcessor {
                         TransmitterDefinition definition = TransmitterDefinition.newDefinition(element, receivers)
                                 .transmitter().target().beanName()
                                 .targetTypeName().targetAsFieldName().build();
-                        TypeSpec typeSpec = factory.newTypeSpec(element, this.processingEnv, definition);
+                        TypeSpec.Builder typeSpec = factory.newTypeSpec(element, this.processingEnv, definition);
+                        if (Objects.nonNull(element.getAnnotation(SpringBean.class))) {
+                            typeSpec.addAnnotation(SpringBeanAnnotationsUtils.component());
+                        }
                         if (Objects.nonNull(typeSpec)) {
                             JavaFileWriterUtils.write(this.processingEnv,
                                     String.format("%s.impl", packageElement.getQualifiedName()),
-                                    typeSpec
+                                    typeSpec.build()
                             );
                         }
                     }

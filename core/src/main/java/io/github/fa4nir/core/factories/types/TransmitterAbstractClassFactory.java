@@ -31,7 +31,7 @@ public class TransmitterAbstractClassFactory implements AnnotationTransferFactor
     }
 
     @Override
-    public TypeSpec newTypeSpec(Element element, ProcessingEnvironment processingEnv, TransmitterDefinition definition) {
+    public TypeSpec.Builder newTypeSpec(Element element, ProcessingEnvironment processingEnv, TransmitterDefinition definition) {
         TypeMirror typeMirror = element.asType();
         TypeName sourceClassType = ClassName.get(typeMirror);
         TypeElement source = processingEnv.getElementUtils().
@@ -46,8 +46,7 @@ public class TransmitterAbstractClassFactory implements AnnotationTransferFactor
                 .superclass(overrideMethods.getKey())
                 .addModifiers(Modifier.PUBLIC)
                 .addMethod(definition.getConstructor())
-                .addMethods(overrideMethods.getValue())
-                .build();
+                .addMethods(overrideMethods.getValue());
     }
 
     private Map.Entry<TypeMirror, List<MethodSpec>>
