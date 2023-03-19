@@ -1,4 +1,4 @@
-package io.github.fa4nir.examples;
+package io.github.fa4nir.examples.payloads;
 
 import java.util.Objects;
 

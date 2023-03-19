@@ -5,7 +5,7 @@ import io.github.fa4nir.core.annotations.FallBackMethod;
 import io.github.fa4nir.core.annotations.NotifyTo;
 import io.github.fa4nir.core.definitions.OverridingMethodsDefinition;
 import io.github.fa4nir.core.definitions.OverridingMethodsDefinitionBuilder;
-import io.github.fa4nir.core.wrappers.OverrideMethodWrapper;
+import io.github.fa4nir.core.factories.TransmitterContainerFactory;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -14,15 +14,6 @@ import java.util.Objects;
 import static io.github.fa4nir.core.utils.ParametersUtils.parametersAsString;
 
 public class OverridingMethodsFactory implements InterceptMethodFactory {
-
-    private final OverrideMethodWrapper tryCatchMethodBaseWrapper;
-
-    private final OverrideMethodWrapper predicateWrapper;
-
-    public OverridingMethodsFactory(OverrideMethodWrapper tryCatchMethodBaseWrapper, OverrideMethodWrapper predicateWrapper) {
-        this.tryCatchMethodBaseWrapper = tryCatchMethodBaseWrapper;
-        this.predicateWrapper = predicateWrapper;
-    }
 
     @Override
     public MethodSpec newMethodSpec(ExecutableElement sourceMethod, Element target) {
@@ -38,13 +29,31 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
                     definition.getGroupOfSourceParameters(),
                     definition.getTargetParameters()
             );
-            return definition.isPredicateMethodsSize() ?
-                    this.predicateWrapper.wrap(parametersAsString, definition, builder)
-                            .build() :
-                    this.tryCatchMethodBaseWrapper.wrap(parametersAsString, definition, builder)
-                            .build();
+            return definition.hasSourceReturnType() ?
+                    ofMethod(definition, parametersAsString, builder) :
+                    ofVoidMethod(definition, parametersAsString, builder);
         }
         return MethodSpec.overriding(sourceMethod).build();
+    }
+
+    public MethodSpec ofVoidMethod(OverridingMethodsDefinition definition, String parametersAsString, MethodSpec.Builder builder) {
+        return definition.isPredicateMethodsSize() ?
+                TransmitterContainerFactory.predicateWrapper()
+                        .wrap(parametersAsString, definition, builder)
+                        .build() :
+                TransmitterContainerFactory.tryCatchMethodBaseWrapper()
+                        .wrap(parametersAsString, definition, builder)
+                        .build();
+    }
+
+    public MethodSpec ofMethod(OverridingMethodsDefinition definition, String parametersAsString, MethodSpec.Builder builder) {
+        return definition.isPredicateMethodsSize() ?
+                TransmitterContainerFactory.returnStatement(TransmitterContainerFactory.predicateWrapper())
+                        .wrap(parametersAsString, definition, builder)
+                        .build() :
+                TransmitterContainerFactory.returnStatement(TransmitterContainerFactory.tryCatchMethodBaseWrapper())
+                        .wrap(parametersAsString, definition, builder)
+                        .build();
     }
 
     private OverridingMethodsDefinition ofDefinitions(ExecutableElement sourceMethod, Element target,
@@ -57,6 +66,7 @@ public class OverridingMethodsFactory implements InterceptMethodFactory {
                 .resultName().delegateResultToAnnotations().fallBackMethodName()
                 .fallBackMethod().targetMethodReturnType()
                 .targetParameters().predicateMethods()
+                .sourceReturnType().sourceMethodResultName()
                 .build();
     }
 

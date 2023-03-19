@@ -1,15 +1,16 @@
-package io.github.fa4nir.examples;
+package io.github.fa4nir.examples.receivers;
 
 import io.github.fa4nir.core.annotations.*;
+import io.github.fa4nir.examples.payloads.Person;
 
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Receiver(name = "custom-listener-case-3")
-public class CustomListenerClass3 {
+public class CustomReceiverForAbstractClass {
 
-    private static final Logger log = Logger.getLogger(CustomListenerClass3.class.getName());
+    private static final Logger log = Logger.getLogger(CustomReceiverForAbstractClass.class.getName());
 
     @DelegateResultTo(method = "delegatorAcceptor")
     public Person customListener(@FetchParam(name = "parameter0") String name, @FetchParam(name = "parameters2") List<String> payload) {

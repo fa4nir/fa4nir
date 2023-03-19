@@ -1,10 +1,10 @@
-package io.github.fa4nir.examples;
+package io.github.fa4nir.examples.receivers;
 
 import com.google.common.util.concurrent.FutureCallback;
 import io.github.fa4nir.core.annotations.*;
 
 @Receiver(name = "customListenerClass")
-public class CaseCustomListenerSpecOne {
+public class CustomReceiverSpecOne {
 
     @DelegateResultTo(method = "delegatorAcceptor")
     @DelegateResultTo(method = "supperDelegatorAcceptor")

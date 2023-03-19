@@ -49,4 +49,12 @@ public interface OverridingMethodsDefinition {
 
     boolean isPredicateMethodsSize();
 
+    TypeMirror sourceReturnType();
+
+    boolean hasSourceReturnType();
+
+    String sourceMethodResultName();
+
+    boolean hasAnnotationReturnStatement();
+
 }
