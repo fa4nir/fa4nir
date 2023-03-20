@@ -42,8 +42,9 @@ public class TransmitterAbstractClassFactory implements AnnotationTransferFactor
         Map.Entry<TypeMirror, List<MethodSpec>> overrideMethods =
                 overrideMethods(definition.isSupper(), sourceSupperElement, source, definition.getTarget());
         return TypeSpec.classBuilder(definition.getBeanName())
-                .addField(this.transmitterTargetFieldsFactory.newField(definition.getTargetTypeName(), definition.getTargetAsFieldName()))
-                .superclass(overrideMethods.getKey())
+                .addField(this.transmitterTargetFieldsFactory.newField(
+                        definition.getTargetTypeName(), definition.getTargetAsFieldName())
+                ).superclass(overrideMethods.getKey())
                 .addModifiers(Modifier.PUBLIC)
                 .addMethod(definition.getConstructor())
                 .addMethods(overrideMethods.getValue());

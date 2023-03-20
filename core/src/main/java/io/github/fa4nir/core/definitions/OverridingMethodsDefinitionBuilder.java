@@ -9,6 +9,7 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.beans.Introspector;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -218,16 +219,17 @@ public interface OverridingMethodsDefinitionBuilder {
                     .filter(method -> method instanceof ExecutableElement)
                     .filter(method -> Objects.nonNull(method.getAnnotation(PayloadPredicate.class)))
                     .map(method -> ((ExecutableElement) method))
+                    .filter(this::isBoolType)
                     .collect(Collectors.toList());
-            if (this.predicateMethods.size() > 1) {
-                throw new IllegalArgumentException("Only one predicate method.");
-            } else if (this.predicateMethods.size() == 1) {
-                TypeMirror type = this.predicateMethods.get(0).getReturnType();
-                if (!TypeKind.BOOLEAN.equals(type.getKind())) {
-                    throw new IllegalArgumentException("Method predicate should return boolean");
-                }
-            }
             return this;
+        }
+
+        private boolean isBoolType(ExecutableElement method) {
+            TypeMirror type = method.getReturnType();
+            if (!TypeKind.BOOLEAN.equals(type.getKind())) {
+                throw new IllegalArgumentException("Method predicate should return boolean");
+            }
+            return true;
         }
 
         @Override
@@ -366,7 +368,25 @@ public interface OverridingMethodsDefinitionBuilder {
                 }
 
                 @Override
-                public List<ExecutableElement> getPredicateMethods() {
+                public Map<String, ExecutableElement> getPredicateMethods() {
+                    if (predicateMethods.size() > 1) {
+                        return predicateMethods.stream()
+                                .filter(method -> {
+                                    PayloadPredicate annotation = method.getAnnotation(PayloadPredicate.class);
+                                    if (StringUtils.isBlank(annotation.marker())) {
+                                        throw new IllegalArgumentException("You should use unique name inside PayloadPredicate and UniqueMarker with the same name.");
+                                    }
+                                    return true;
+                                }).collect(Collectors.toMap(
+                                        key -> key.getAnnotation(PayloadPredicate.class).marker(),
+                                        Function.identity()
+                                ));
+                    }
+                    return new HashMap<>();
+                }
+
+                @Override
+                public List<ExecutableElement> getListOfPredicateMethods() {
                     return predicateMethods;
                 }
 
@@ -382,7 +402,7 @@ public interface OverridingMethodsDefinitionBuilder {
 
                 @Override
                 public boolean isPredicateMethodsSize() {
-                    return predicateMethods.size() == 1;
+                    return predicateMethods.size() >= 1;
                 }
 
                 @Override

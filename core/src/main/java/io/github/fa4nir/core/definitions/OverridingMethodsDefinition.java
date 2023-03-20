@@ -41,7 +41,9 @@ public interface OverridingMethodsDefinition {
 
     List<? extends VariableElement> getTargetParameters();
 
-    List<ExecutableElement> getPredicateMethods();
+    Map<String, ExecutableElement> getPredicateMethods();
+
+    List<ExecutableElement> getListOfPredicateMethods();
 
     String getNotifyToTarget();
 
