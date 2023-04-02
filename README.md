@@ -24,8 +24,8 @@ to listening your notifications.
 ## Dependencies
 
 ```
-    implementation 'io.github.fa4nir:fa4nir:1.0.3'
-    annotationProcessor 'io.github.fa4nir:fa4nir:1.0.3'
+    implementation 'io.github.fa4nir:fa4nir:1.0.4'
+    annotationProcessor 'io.github.fa4nir:fa4nir:1.0.4'
 ```
 
 # Examples
@@ -398,6 +398,82 @@ Generated code:
 
 ```java
 
+public class TransmitterWithNameInParameters implements ParametersWithNameTransmitter {
+    @Override
+    public Person onSuccess1(String personName, List<String> payload) {
+        Person result;
+        if (this.parametersWithNameReceivers.isPayloadNotNull(personName)) {
+            try {
+                int secondResult = this.receiverTemplate.receiverMethod(personName);
+                result = this.receiverTemplate.delegateMethod(secondResult);
+            } catch (Exception e) {
+                this.parametersWithNameReceivers.fallbackListenerWithParametersName(e, personName);
+            }
+        }
+        return result;
+    }
+}
+
+```
+
+Spring Bean example:
+
+Example_2:
+
+```java
+
+@SpringBean
+@Transmitter(beanName = "CustomListenerImpl", receiverName = "custom-listener-receiver")
+public interface TransmitterTemplate extends CustomListener {
+    @Override
+    @NotifyTo(name = "receiverMethod")
+    @FallBackMethod(name = "fallBackForReceiverMethod")
+    Person onSuccess(String parameter0,
+                     Integer parameter1,
+                     List<String> parameters2);
+
+    @Override
+    default void onFailure(Throwable t) {
+    }
+
+    @Override
+    default void onSuccess(String r) {
+    }
+
+    @Override
+    default void onSuccess1(String parameter0, Double parameters2) {
+    }
+}
+```
+
+```java
+
+@Receiver(name = "custom-listener-receiver")
+public class ReceiverTemplate {
+
+    private static final Logger log = Logger.getLogger(CustomListenerClass2.class.getName());
+
+    @DelegateResultTo(method = "delegateMethod")
+    public int receiverMethod(@FetchParam(num = 0) String name, @FetchParam(name = "parameters2") List<String> payload) {
+        log.log(Level.INFO, "Enter: {0}, {1}", new Object[]{name, payload});
+        return 10;
+    }
+
+    public Person delegateMethod(@FetchResult int index) {
+        log.log(Level.INFO, "Enter: {0}, {1}", new Object[]{name, payload});
+        return new Person(index, "Mit9i", "mit9i@gmail.com");
+    }
+
+    //...
+
+}
+```
+
+Generated code:
+
+```java
+
+@Component
 public class TransmitterWithNameInParameters implements ParametersWithNameTransmitter {
     @Override
     public Person onSuccess1(String personName, List<String> payload) {
