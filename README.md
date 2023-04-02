@@ -24,8 +24,8 @@ to listening your notifications.
 ## Dependencies
 
 ```
-    implementation 'io.github.fa4nir:fa4nir:1.0.2'
-    annotationProcessor 'io.github.fa4nir:fa4nir:1.0.2'
+    implementation 'io.github.fa4nir:fa4nir:1.0.3'
+    annotationProcessor 'io.github.fa4nir:fa4nir:1.0.3'
 ```
 
 # Examples
