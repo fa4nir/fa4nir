@@ -1,0 +1,1 @@
+Transmitter: TransmitterTemplate, Receiver: CaseCustomListenerSpec, Miss mapping. 2 annotation NotifyTo and 2 annotation PayloadPredicate, but UniqueMarker annotation less then PayloadPredicate

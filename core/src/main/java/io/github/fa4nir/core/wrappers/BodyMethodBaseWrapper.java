@@ -24,8 +24,13 @@ public class BodyMethodBaseWrapper implements OverrideMethodWrapper {
             List<CodeBlock> callsToDelegateMethods = ofDelegateDefinitions(definition);
             callsToDelegateMethods.forEach(builder::addStatement);
         } else {
-            builder.addStatement("this.$N.$N($N)",
-                    definition.getTargetFieldName(), definition.getTargetMethod().getSimpleName().toString(), parametersAsString);
+            if (definition.hasAnnotationReturnStatement()) {
+                builder.addStatement("$N = this.$N.$N($N)", definition.sourceMethodResultName(),
+                        definition.getTargetFieldName(), definition.getTargetMethod().getSimpleName().toString(), parametersAsString);
+            } else {
+                builder.addStatement("this.$N.$N($N)",
+                        definition.getTargetFieldName(), definition.getTargetMethod().getSimpleName().toString(), parametersAsString);
+            }
         }
         return builder;
     }

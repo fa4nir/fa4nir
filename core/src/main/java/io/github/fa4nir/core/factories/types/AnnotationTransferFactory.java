@@ -8,6 +8,6 @@ import javax.lang.model.element.Element;
 
 public interface AnnotationTransferFactory {
 
-    TypeSpec newTypeSpec(Element element, ProcessingEnvironment processingEnv, TransmitterDefinition definition);
+    TypeSpec.Builder newTypeSpec(Element element, ProcessingEnvironment processingEnv, TransmitterDefinition definition);
 
 }
