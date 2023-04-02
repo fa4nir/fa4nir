@@ -30,7 +30,8 @@ public class ParametersUtils {
       if (num != -1) {
          return targetParameters.get(num);
       } else if (StringUtils.isNoneBlank(name)) {
-         return groupOfSourceParameters.get(name);
+         return Objects.requireNonNull(groupOfSourceParameters.get(name),
+                 "Can't you recheck parameters name because not found parameter with this name: " + name);
       }
       throw new IllegalArgumentException("Cannot find parameter in annotation " + annotation.getClass());
    }
