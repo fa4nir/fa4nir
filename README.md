@@ -418,8 +418,6 @@ public class TransmitterWithNameInParameters implements ParametersWithNameTransm
 
 Spring Bean example:
 
-Example_2:
-
 ```java
 
 @SpringBean
