@@ -255,9 +255,6 @@ public interface OverridingMethodsDefinitionBuilder {
                         .filter(method -> !this.annotationNotifyTo.name().equals(method.getSimpleName().toString()))
                         .filter(method -> Objects.nonNull(method.getAnnotation(ReturnStatement.class)))
                         .count();
-                if (count > 1) {
-                    throw new IllegalArgumentException("Return statement should have only one exemplar.");
-                }
                 if (!this.isTargetMethodHasReturnStatement && !this.sourceMethodReturnType.getKind().equals(TypeKind.VOID)) {
                     if (count == 0) {
                         throw new IllegalArgumentException("Should exist ReturnStatement annotation to mark which result should be return from listener.");
